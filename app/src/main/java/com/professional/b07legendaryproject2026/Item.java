@@ -1,4 +1,4 @@
-package com.example.b07demosummer2024;
+package com.professional.b07legendaryproject2026;
 
 public class Item {
 
