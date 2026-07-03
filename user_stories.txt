@@ -1,0 +1,90 @@
+TAAM ARTIFACT MANAGEMENT SYSTEM - USER STORIES
+CSCB07 S26
+Format: As a {ACTOR/OBJECT} I want to {ACTION} so that {RESULT}
+ 
+================================================================
+REGULAR USER ACCOUNT
+================================================================
+- As a new user, I want to create a new account (username, password, DOB, etc.) so
+  that I can see cool museum artifacts.
+- As a returning user, I want to log in using my email and password so that I
+  can access my account.
+- As a user, I want to log out so that I can end my session without someone hacking me :(
+ 
+[STRETCH GOAL - not in requirements doc]
+- As a new user, I'd like to opt in to receive email notifications about
+  museum happenings.
+- As a returning user, I want to change my password and/or other details so that I can maintain
+  account security.
+ 
+================================================================
+ADMIN USER ACCOUNT
+================================================================
+- As an admin, I want to add a new artifact with all required fields so that
+  it appears in the collection. The app should validate that mandatory fields
+  are filled (adhering to format) and that the lot number is unique.
+- [SUBPOINT] As an admin, I don't want to be forced to fill in non-mandatory fields.
+- As an admin, I want to edit an existing artifact's fields (except lot
+  number) so that I can maintain record accuracy.
+- As an admin, I want to select and upload an image so that each artifact has
+  a visual representation.
+- As an admin, I want to delete artifacts from the museum registry (and
+  optionally delete any associated images to free up storage).
+- As an admin, I want to see a confirmation warning before an artifact is
+  deleted so that I don't accidentally remove data.
+ 
+================================================================
+VIEWING ARTIFACTS
+================================================================
+- As a user, I want to view the artifact home page so that I can browse
+  artifacts.
+- As a user, I want to search for a specific artifact so that I can find it
+  quickly. I want the search to match any field of an artifact (not just the name),
+  so I can find items even if I only remember a partial detail (like material
+  or dynasty)
+- As a user, I want to open an expanded artifact view for full details so
+  that I can learn more about it, including what other users think of it.
+- As a user, I want to share my opinion on artifact pieces (liking/commenting)
+  so that I can engage with the collection.
+  NOTE!! we gotta ensure comment timestamp and comment author are
+  displayed; sort comments by timestamp, newest first.
+- As a user, I want to save artifacts to my saved collection and view my
+  saved artifacts so that I can revisit items I'm interested in.
+- As a user, I want pagination on the home page (12, 24, or all artifacts per
+  page) with my preference stored locally so that I don't have to reset it
+  each time.
+ 
+[BONUS - from requirements doc]
+- As a user, I want to see related artifacts (based on similarity in
+  category, material, dynasty/period, or cultural origin) when viewing an
+  artifact so that I can discover other relevant pieces.
+ 
+[STRETCH GOAL - not in requirements doc]
+- As a user, I want to create multiple named collections (not just one saved
+  list) so that I can organize saved artifacts by theme.
+ 
+================================================================
+ADMIN VIEWING ARTIFACTS
+================================================================
+- As an admin, I want to moderate discussion on artifact comments (i.e.
+  delete undesired comments) so that I can keep discussion appropriate.
+ 
+[STRETCH GOAL - not in requirements doc]
+- As an admin, I want to mute or ban users if necessary so that I can handle
+  repeat offenders.
+ 
+================================================================
+TECHNICAL REQUIREMENTS (pleas follow)
+================================================================
+- Login/signup logic must follow MVP (Model-View-Presenter) structure.
+- Unit tests are required for login/signup presenter logic.
+  (MVP + unit tests apply ONLY to the login/signup portion, not the whole app.)
+ 
+================================================================
+NOTES
+================================================================
+Items marked [STRETCH GOAL] are not REQUIRED but would be nice to add some flair to the app :)
+ 
+Items marked [BONUS] are explicitly listed as optional/bonus in the
+requirements doc itself.
+
