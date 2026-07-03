@@ -2,9 +2,9 @@ TAAM ARTIFACT MANAGEMENT SYSTEM - USER STORIES
 CSCB07 S26
 Format: As a {ACTOR/OBJECT} I want to {ACTION} so that {RESULT}
  
-================================================================
-REGULAR USER ACCOUNT
-================================================================
+
+[REGULAR USER ACCOUNT]
+
 - As a new user, I want to create a new account (username, password, DOB, etc.) so
   that I can see cool museum artifacts.
 - As a returning user, I want to log in using my email and password so that I
@@ -17,9 +17,8 @@ REGULAR USER ACCOUNT
 - As a returning user, I want to change my password and/or other details so that I can maintain
   account security.
  
-================================================================
-ADMIN USER ACCOUNT
-================================================================
+[ADMIN USER ACCOUNT]
+
 - As an admin, I want to add a new artifact with all required fields so that
   it appears in the collection. The app should validate that mandatory fields
   are filled (adhering to format) and that the lot number is unique.
@@ -32,10 +31,10 @@ ADMIN USER ACCOUNT
   optionally delete any associated images to free up storage).
 - As an admin, I want to see a confirmation warning before an artifact is
   deleted so that I don't accidentally remove data.
- 
-================================================================
-VIEWING ARTIFACTS
-================================================================
+
+
+[VIEWING ARTIFACTS]
+
 - As a user, I want to view the artifact home page so that I can browse
   artifacts.
 - As a user, I want to search for a specific artifact so that I can find it
@@ -63,9 +62,9 @@ VIEWING ARTIFACTS
 - As a user, I want to create multiple named collections (not just one saved
   list) so that I can organize saved artifacts by theme.
  
-================================================================
-ADMIN VIEWING ARTIFACTS
-================================================================
+
+[ADMIN VIEWING ARTIFACTS]
+
 - As an admin, I want to moderate discussion on artifact comments (i.e.
   delete undesired comments) so that I can keep discussion appropriate.
  
@@ -73,16 +72,16 @@ ADMIN VIEWING ARTIFACTS
 - As an admin, I want to mute or ban users if necessary so that I can handle
   repeat offenders.
  
-================================================================
-TECHNICAL REQUIREMENTS (pleas follow)
-================================================================
+
+[ADDITIONAL REQUIREMENTS] (pleas follow)
+
 - Login/signup logic must follow MVP (Model-View-Presenter) structure.
 - Unit tests are required for login/signup presenter logic.
   (MVP + unit tests apply ONLY to the login/signup portion, not the whole app.)
  
-================================================================
-NOTES
-================================================================
+
+[hey guys here's some notes]
+
 Items marked [STRETCH GOAL] are not REQUIRED but would be nice to add some flair to the app :)
  
 Items marked [BONUS] are explicitly listed as optional/bonus in the
