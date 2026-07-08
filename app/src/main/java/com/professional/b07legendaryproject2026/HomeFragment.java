@@ -4,9 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -16,36 +16,14 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_home_fragment, container, false);
 
-        Button buttonRecyclerView = view.findViewById(R.id.buttonRecyclerView);
-        Button buttonScroller = view.findViewById(R.id.buttonScroller);
-        Button buttonSpinner = view.findViewById(R.id.buttonSpinner);
-        Button buttonManageItems = view.findViewById(R.id.buttonManageItems);
-
-        buttonRecyclerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadFragment(new RecyclerViewFragment());
-            }
-        });
-
-        buttonScroller.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadFragment(new ScrollerFragment());
-            }
-        });
-
-        buttonSpinner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadFragment(new SpinnerFragment());
-            }
-        });
-
-        buttonManageItems.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { loadFragment(new ManageItemsFragment());}
-        });
+        SearchView searchView = view.findViewById(R.id.search_view_home);
+        if (searchView != null) {
+            searchView.setOnQueryTextFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) {
+                    searchView.setIconified(false);
+                }
+            });
+        }
 
         return view;
     }
