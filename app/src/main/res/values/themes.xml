@@ -1,9 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.B07DemoSummer2024" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Theme.B07DemoSummer2024" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/taam_gold</item>
+        <item name="colorSecondaryVariant">@color/taam_gold</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:windowBackground">@color/taam_background</item>
+        <item name="android:textColorPrimary">@color/taam_text_dark</item>
+        <item name="android:statusBarColor">@color/taam_gold</item>
     </style>
-
-    <style name="Theme.B07DemoSummer2024" parent="Base.Theme.B07DemoSummer2024" />
 </resources>

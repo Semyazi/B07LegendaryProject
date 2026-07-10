@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black">#1A1A1A</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="taam_gold">#C7A762</color>
+    <color name="taam_background">#FFFFFFFF</color>
+    <color name="taam_text_dark">#1A1A1A</color>
+    <color name="taam_text_gray">#5A5A5A</color>
+    <color name="search_bar_background">#F0F0F0</color>
 </resources>
