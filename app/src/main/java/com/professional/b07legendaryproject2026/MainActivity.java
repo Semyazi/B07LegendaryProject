@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.professional.b07legendaryproject2026.fragments.HomeFragment;
+import com.professional.b07legendaryproject2026.fragments.ProfileFragment;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,14 +22,16 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/");
 
         if (savedInstanceState == null) {
-            loadFragment(new HomeFragment());
+            loadFragment(new HomeFragment(), false);
         }
     }
 
-    private void loadFragment(Fragment fragment) {
+    public void loadFragment(Fragment fragment, boolean addToBackStack) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
-        transaction.addToBackStack(null);
+        if (addToBackStack) {
+            transaction.addToBackStack(null);
+        }
         transaction.commit();
     }
 

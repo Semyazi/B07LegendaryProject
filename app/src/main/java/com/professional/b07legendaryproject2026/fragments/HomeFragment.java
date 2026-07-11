@@ -1,14 +1,21 @@
-package com.professional.b07legendaryproject2026;
+package com.professional.b07legendaryproject2026.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.professional.b07legendaryproject2026.MainActivity;
+import com.professional.b07legendaryproject2026.R;
+import com.professional.b07legendaryproject2026.utils.ToastUtils;
+
 
 public class HomeFragment extends Fragment {
     @Nullable
@@ -24,6 +31,23 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
+
+        View buttonProfile = view.findViewById(R.id.button_profile);
+        if (buttonProfile != null)
+            buttonProfile.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).loadFragment(new ProfileFragment(), true);
+                }
+            });
+
+        View logoutButton = view.findViewById(R.id.button_logout);
+        if(logoutButton != null)
+            logoutButton.setOnClickListener(v -> {
+                if(getActivity() instanceof MainActivity) {
+                    //((MainActivity) getActivity()).loadFragment(new LoginFragment(), false); TODO: implement the login page to be shown after user logs out.
+                    ToastUtils.showToast(getContext(), "You have successfully logged out.");
+                }
+            });
 
         return view;
     }
