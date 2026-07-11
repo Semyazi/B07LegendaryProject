@@ -1,0 +1,24 @@
+**guide to use the firebase auth and realtime db (yay)**
+
+creating a user:
+you need to first register them in the firebase auth, and then store them in 'users/uid' (make sure to store the username, and admin which should be false)
+
+reading artifacts:
+just read from 'artifacts', and if you need comments, look at 'artifactComments/lotNumber' for your specific artifact.
+
+adding/removing likes:
+set 'artifacts/lotNumber/likes/uid' to true. to remove the like, remove the key (don't set it to false or you'll get an error)
+
+saving artifacts to a user's collection:
+set 'users/uid/savedArtifacts/lotNumber' to true. to remove it, remove the key (don't set it to false or you'll get an error)
+
+comments:
+regular users can add comments in 'artifactComments/lotNumber/uid/commentId' (you'll need to generate some uuid for the comment).
+also, add a unix timestamp and store the username of the current user inside the comment
+
+admin stuff:
+- deleting artifacts: just set the artifact in 'artifacts/lotNumber' to null. all the details are stored in 'artifacts/lotNumber/details' and admins have edit access to it
+(you can see the field names pretty clearly from inside the firebase rules, i recommend taking a peek at that)
+also, admins have delete access to 'artifactComments/lotNumber', so they can wipe out the comments associated to a particular artifact
+
+ENUM REMINDER: 'category', 'material', and 'dynastyPeriod' are stored as enums (indices from 0,1,...). so don't try to store strings here, you'll want to turn it into a string when you download data from the db (and vice versa)
