@@ -1,0 +1,41 @@
+users (keyed by a uid): (no reason to store email here because it's already in the firebase auth)
+- username (string, length > 0)
+- savedArtifacts (object mapping lotNumber -> true)
+- admin (boolean)
+
+artifacts (keyed by a lotNumber):
+- details: (object containing the core data, modifiable only by admins)
+    - name (string, length > 0)
+    - description (string, length > 0)
+    - category (enum with 16 options, stored as an integer from 0-15)
+    - material (enum with 11 options, stored as an integer from 0-10)
+    - dynastyPeriod (enum with 18 options, stored as an integer from 0-17)
+    - culturalOrigin (string)
+    - dimensions (string)
+    - conditionReport (string)
+    - currentLocation (string)
+    - acquisitionMethod (string)
+    - provenance (string)
+    - accessionNumber (string, stored as a string to allow museum formatting)
+    - notes (string)
+    - imageUrl (string, public URL reference pointing to storage provider)
+- likes: (dictionary mapping uid -> true; to unlike, remove the userId key)
+
+artifactComments (keyed by a lotNumber):
+- inside an object, we map a user's uid -> another object that holds their comments
+    - in this object, we map a unique comment id -> their comment data, which contains:
+        - content (string, length > 0)
+        - timestamp (number, unix timestamp)
+        - username (string, length > 0)
+
+PERMISSIONS:
+if a user is not logged in, then they see nothing.
+if a user is logged in (and they're not an admin):
+- they can see every user's username
+- they can see and edit their own user node (but are blocked from setting 'admin' to true to prevent privilege escalation)
+- they can read all artifact details and comments, but cannot modify them
+- they can only manage their own likes and their own comment nodes
+
+if a user is logged in (and they're an admin):
+- they have complete read/edit powers over artifact details nodes
+- they can delete an entire artifact entry or wipe an artifact's complete comment history
