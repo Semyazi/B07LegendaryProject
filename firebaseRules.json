@@ -1,0 +1,86 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['username', 'admin'])",
+
+        "$other": { ".validate": false },
+        
+        "username": {
+          ".read": "auth != null",
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "savedArtifacts": {
+          "$lotNumber": {
+            ".validate": "newData.val() == true"
+          }
+        },
+        "admin": {
+          ".validate": "newData.isBoolean() && (newData.val() == false || (data.exists() && data.val() == true && newData.val() == true))"
+        }
+      }
+    },
+
+    "artifacts": {
+      ".read": "auth != null",
+      
+      "$lotNumber": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() == true && !newData.exists()",
+
+        "details": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() == true",
+          ".validate": "newData.hasChildren(['name', 'description', 'category', 'material', 'dynastyPeriod'])",
+
+          "$other": { ".validate": false },
+          
+          "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+          "description": { ".validate": "newData.isString() && newData.val().length > 0" },
+          "category": { ".validate": "newData.isNumber() && newData.val() % 1 == 0 && 0 <= newData.val() && newData.val() < 16" },
+          "material": { ".validate": "newData.isNumber() && newData.val() % 1 == 0 && 0 <= newData.val() && newData.val() < 11" },
+          "dynastyPeriod": { ".validate": "newData.isNumber() && newData.val() % 1 == 0 && 0 <= newData.val() && newData.val() < 18" },
+          "culturalOrigin": { ".validate": "newData.isString()" },
+          "dimensions": { ".validate": "newData.isString()" },
+          "conditionReport": { ".validate": "newData.isString()" },
+          "currentLocation": { ".validate": "newData.isString()" },
+          "acquisitionMethod": { ".validate": "newData.isString()" },
+          "provenance": { ".validate": "newData.isString()" },
+          "accessionNumber": { ".validate": "newData.isString()" },
+          "notes": { ".validate": "newData.isString()" },
+          "imageUrl": { ".validate": "newData.isString()" }
+        },
+        
+        "likes": {
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid",
+            ".validate": "newData.val() == true"
+          }
+        }
+      }
+    },
+
+    "artifactComments": {
+      ".read": "auth != null",
+      
+      "$lotNumber": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() == true && !newData.exists()",
+
+        "$uid": {
+          ".write": "auth != null && (auth.uid == $uid)",
+          
+          "$commentId": {
+            ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() == true && !newData.exists()",
+            ".validate": "newData.hasChildren(['content', 'timestamp', 'username'])",
+
+            "$other": { ".validate": false },
+
+            "content": { ".validate": "newData.isString() && newData.val().length > 0" },
+            "timestamp": { ".validate": "newData.isNumber()" },
+            "username": { ".validate": "newData.isString() && newData.val().length > 0" }
+          }
+        }
+      }
+    }
+  }
+}
