@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
-import com.professional.b07legendaryproject2026.fragments.ProfileFragment;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
