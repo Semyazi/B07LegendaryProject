@@ -1,4 +1,4 @@
-package com.professional.b07legendaryproject2026;
+package com.professional.b07legendaryproject2026.data;
 
 public class Artifact {
     // Mandatory fields
@@ -107,18 +107,18 @@ public class Artifact {
         QIN(4),
         HAN(5),
         THREE_KINGDOMS(6),
-        JIN(7),
+        JIN1(7),
         SOUTHERN_AND_NORTHERN(8),
         SUI(9),
         TANG(10),
         FIVE_DYNASTIES_AND_TEN_KINGDOMS(11),
         SONG(12),
         LIAO(13),
-        JIN(14),
+        JIN2(14),
         YUAN(15),
         MING(16),
         QING(17),
-        REPUBLIC_OF_CHINA(18),
+        REPUBLIC_OF_CHINA(18);
 
         private final int id;
 

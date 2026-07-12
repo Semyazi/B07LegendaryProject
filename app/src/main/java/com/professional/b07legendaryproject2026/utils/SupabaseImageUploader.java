@@ -1,4 +1,4 @@
-package com.professional.b07legendaryproject2026;
+package com.professional.b07legendaryproject2026.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+
+import com.professional.b07legendaryproject2026.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
