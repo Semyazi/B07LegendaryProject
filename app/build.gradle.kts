@@ -36,10 +36,10 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.database)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.recyclerview)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
-    //OkHttp for Http upload reqs to Supabase
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

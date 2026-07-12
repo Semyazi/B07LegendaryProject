@@ -2,7 +2,7 @@ package com.professional.b07legendaryproject2026.data;
 
 public class Artifact {
     // Mandatory fields
-    private int lotNumber;
+    private String lotNumber;
     private String name;
     private String description;
     private CategoryNum categoryNum;
@@ -16,7 +16,7 @@ public class Artifact {
     private String currentLocation;
     private String acquisitionMethod;
     private String provenance;
-    private int accessionNumber;
+    private String accessionNumber;
     private String notes;
     private String image;
 
@@ -144,7 +144,7 @@ public class Artifact {
     }
 
     public Artifact() {
-        this.lotNumber = -1;
+        this.lotNumber = null;
         this.name = null;
         this.description = null;
         this.categoryNum = CategoryNum.UNKNOWN;
@@ -157,12 +157,12 @@ public class Artifact {
         this.currentLocation = null;
         this.acquisitionMethod = null;
         this.provenance = null;
-        this.accessionNumber = -1;
+        this.accessionNumber = null;
         this.notes = null;
         this.image = null;
     }
 
-    public Artifact(int lotNumber, String name, String description, int categoryNum, int materialNum, int periodNum) {
+    public Artifact(String lotNumber, String name, String description, int categoryNum, int materialNum, int periodNum) {
         this.lotNumber = lotNumber;
         this.name = name;
         this.description = description;
@@ -176,14 +176,14 @@ public class Artifact {
         this.currentLocation = null;
         this.acquisitionMethod = null;
         this.provenance = null;
-        this.accessionNumber = -1;
+        this.accessionNumber = null;
         this.notes = null;
         this.image = null;
     }
 
     // Getters and setters
-    public int getLotNumber() { return lotNumber; }
-    public void setLotNumber(int lotNumber) { this.lotNumber = lotNumber; }
+    public String getLotNumber() { return lotNumber; }
+    public void setLotNumber(String lotNumber) { this.lotNumber = lotNumber; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -218,8 +218,8 @@ public class Artifact {
     public String getProvenance() { return provenance; }
     public void setProvenance(String provenance) { this.provenance = provenance; }
 
-    public int getAccessionNumber() { return accessionNumber; }
-    public void setAccessionNumber(int accessionNumber) { this.accessionNumber = accessionNumber; }
+    public String getAccessionNumber() { return accessionNumber; }
+    public void setAccessionNumber(String accessionNumber) { this.accessionNumber = accessionNumber; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
