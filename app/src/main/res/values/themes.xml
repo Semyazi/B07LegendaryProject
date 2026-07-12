@@ -9,6 +9,22 @@
         <item name="android:windowBackground">@color/primary_background</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:statusBarColor">@color/taam_gold</item>
+        <item name="materialAlertDialogTheme">@style/CustomMaterialDialog</item>
+    </style>
+
+    <style name="CustomMaterialDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="buttonBarPositiveButtonStyle">@style/CustomDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/CustomDialogButton</item>
+        <item name="shapeAppearanceMediumComponent">@style/RoundedCornersDialog</item>
+    </style>
+
+    <style name="CustomDialogButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/dialog_button_text</item>
+    </style>
+
+    <style name="RoundedCornersDialog">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
     </style>
 
     <style name="RoundedCornersImage">
