@@ -1,17 +1,27 @@
 package com.professional.b07legendaryproject2026.fragments;
 
-import android.os.Bundle;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -29,9 +39,17 @@ import java.util.List;
 
 
 public class HomeFragment extends Fragment {
+    private static final String PREFS_NAME = "TAAM_Prefs";
+    private static final String KEY_ITEMS_PER_PAGE = "items_per_page";
+
     private ArtifactAdapter artifactAdapter;
     private final List<Artifact> allArtifacts = new ArrayList<>();
     private Spinner itemsPerPageSpinner;
+    private LinearLayout pageNumbersContainer;
+    private Button prevButton;
+    private Button nextButton;
+    private int currentPage = 1;
+    private int totalPages = 1;
 
     @Nullable
     @Override
@@ -87,7 +105,6 @@ public class HomeFragment extends Fragment {
         if(logoutButton != null)
             logoutButton.setOnClickListener(v -> {
                 if(getActivity() instanceof MainActivity) {
-                    //((MainActivity) getActivity()).loadFragment(new LoginFragment(), false); TODO: implement the login page to be shown after user logs out.
                     ToastUtils.showToast(getContext(), "You have successfully logged out.");
                 }
             });
@@ -104,6 +121,28 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         artifactAdapter = new ArtifactAdapter(a -> ToastUtils.showToast(getContext(), "Lot: "+a.getLotNumber()+", Name: "+a.getName()));
         recyclerView.setAdapter(artifactAdapter);
+
+        pageNumbersContainer = view.findViewById(R.id.layout_page_numbers);
+        prevButton = view.findViewById(R.id.button_prev_page);
+        nextButton = view.findViewById(R.id.button_next_page);
+
+        if (prevButton != null) {
+            prevButton.setOnClickListener(v -> {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateDisplayedArtifacts();
+                }
+            });
+        }
+
+        if (nextButton != null) {
+            nextButton.setOnClickListener(v -> {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateDisplayedArtifacts();
+                }
+            });
+        }
 
         itemsPerPageSpinner = view.findViewById(R.id.spinner_items_per_page);
         if (itemsPerPageSpinner != null) {
@@ -122,30 +161,53 @@ public class HomeFragment extends Fragment {
             itemsPerPageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    // Save the user's preference
+                    String selected = parent.getItemAtPosition(position).toString();
+                    if (getContext() != null) {
+                        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString(KEY_ITEMS_PER_PAGE, selected);
+                        editor.apply();
+                    }
+
+                    currentPage = 1;
                     updateDisplayedArtifacts();
                 }
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {}
             });
+
+            // Load saved preference
+            if (getContext() != null) {
+                SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                String savedItemsPerPage = prefs.getString(KEY_ITEMS_PER_PAGE, "12"); // 12 is the defaultValue btw
+                // iter. through selection options to set accordingly
+                for (int i = 0; i < itemsPerPageSpinner.getCount(); i++) {
+                    String itemValue = itemsPerPageSpinner.getItemAtPosition(i).toString();
+                    if (itemValue.equals(savedItemsPerPage)) {
+                        itemsPerPageSpinner.setSelection(i);
+                        break;
+                    }
+                }
+            }
         }
 
         // Generate dummy data
-        generateDummyData();
+        generateDummyData(45);
         updateDisplayedArtifacts();
 
         return view;
     }
 
-    private void generateDummyData() {
+    private void generateDummyData(int n) {
         allArtifacts.clear();
-        for (int i = 1; i <= 30; i++) {
+        for (int i = 1; i <= n; i++) {
             Artifact a = new Artifact();
-            a.setLotNumber("TAAM-" + String.format("%03d", i));
-            a.setName("Artifact " + i);
-            a.setPeriodNum(Artifact.PeriodNum.UNKNOWN);
-            // Use specific URLs for a few to test loading, leave others for placeholder
-            if (i == 1 || i == 2 || i == 4) a.setImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo24-TgibHQu-TJ4mons88cFjtyJ1kea_dvoBKt_bEPBwe8Zv8i10l_8&s=10");
+            a.setLotNumber("rawad-" + String.format("%03d", i));
+            a.setName("rawad " + i);
+            a.setPeriodNum(Artifact.PeriodNum.FIVE_DYNASTIES_AND_TEN_KINGDOMS);
+            if (i == 1) a.setImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo24-TgibHQu-TJ4mons88cFjtyJ1kea_dvoBKt_bEPBwe8Zv8i10l_8&s=10");
             allArtifacts.add(a);
         }
     }
@@ -155,7 +217,7 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        // Capture scroll position logic
+        // Save scroll pos. per page when swapping # displayed
         int firstVisiblePos = -1;
         RecyclerView recyclerView = null;
         if (getView() != null) {
@@ -170,19 +232,27 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        String selectedItem = itemsPerPageSpinner.getSelectedItem().toString();
-        int numToShow = Integer.parseInt(selectedItem);
 
-        List<Artifact> limitedList = new ArrayList<>();
+        // Get page data: items per page and total pages
+        int itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
+
         int totalAvailable = allArtifacts.size();
-        int endLimit;
-        if (numToShow < totalAvailable) {
-            endLimit = numToShow;
-        } else {
-            endLimit = totalAvailable;
+        totalPages = (int) Math.ceil((double) totalAvailable / itemsPerPage);
+
+        // Ensure current page is valid
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
         }
 
-        for (int i = 0; i < endLimit; i++) {
+
+        int startIndex = (currentPage - 1) * itemsPerPage; // how many cards were on all the previous pages?
+        int endIndex = Math.min(startIndex + itemsPerPage, totalAvailable);
+
+        List<Artifact> limitedList = new ArrayList<>();
+        for (int i = startIndex; i < endIndex; i++) {
             limitedList.add(allArtifacts.get(i));
         }
 
@@ -191,12 +261,106 @@ public class HomeFragment extends Fragment {
         // Smart scroll maintenance
         if (recyclerView != null) {
             if (firstVisiblePos != -1) {
-                if (firstVisiblePos >= numToShow) {
+                int numOnThisPage = limitedList.size();
+                if (firstVisiblePos >= numOnThisPage) {
                     // If user was scrolled past the new limit, jump to the last item
-                    recyclerView.scrollToPosition(numToShow - 1);
+                    recyclerView.scrollToPosition(numOnThisPage - 1);
                 }
             }
         }
+
+        updatePaginationUI();
+    }
+
+    private void updatePaginationUI() {
+        if (pageNumbersContainer == null) return;
+
+        pageNumbersContainer.removeAllViews();
+
+        if (totalPages <= 5) {
+            // Show all pages
+            for (int i = 1; i <= totalPages; i++) {
+                addPageNumberToUI(i);
+            }
+        } else {
+            // ellipsis logic: [1 ... <totalPages>]
+            addPageNumberToUI(1);
+            
+            TextView ellipsis = new TextView(requireContext());
+            ellipsis.setText("...");
+            ellipsis.setTextSize(16);
+            ellipsis.setPadding(16, 8, 16, 8);
+            ellipsis.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
+            ellipsis.setGravity(Gravity.CENTER);
+            ellipsis.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
+            ellipsis.setOnClickListener(v -> showPageJumpDialog());
+            pageNumbersContainer.addView(ellipsis);
+
+            addPageNumberToUI(totalPages);
+        }
+
+        // Disable buttons if at boundaries
+        if (prevButton != null) {
+            prevButton.setEnabled(currentPage > 1);
+            prevButton.setAlpha(currentPage > 1 ? 1.0f : 0.5f);
+        }
+        if (nextButton != null) {
+            nextButton.setEnabled(currentPage < totalPages);
+            nextButton.setAlpha(currentPage < totalPages ? 1.0f : 0.5f);
+        }
+    }
+
+    private void addPageNumberToUI(int page) {
+        if (getContext() == null) return;
+        TextView tv = new TextView(requireContext());
+        tv.setText(String.valueOf(page));
+        tv.setTextSize(16);
+        tv.setPadding(16, 8, 16, 8);
+        tv.setGravity(Gravity.CENTER);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
+        tv.setLayoutParams(params);
+
+        if (page == currentPage) {
+            tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.taam_gold));
+            tv.setTypeface(null, android.graphics.Typeface.BOLD);
+        } else {
+            tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
+        }
+
+        tv.setOnClickListener(v -> {
+            currentPage = page;
+            updateDisplayedArtifacts();
+        });
+
+        pageNumbersContainer.addView(tv);
+    }
+
+    private void showPageJumpDialog() {
+        if (getContext() == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Jump to Page");
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Enter page (1-" + totalPages + ")");
+        builder.setView(input);
+
+        builder.setPositiveButton("Go", (dialog, which) -> {
+            String val = input.getText().toString().trim();
+            if (!val.isEmpty()) {
+                int targetPage = Integer.parseInt(val);
+                if (targetPage >= 1 && targetPage <= totalPages) {
+                    currentPage = targetPage;
+                    updateDisplayedArtifacts();
+                } else {
+                    ToastUtils.showToast(getContext(), "Invalid page number.");
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 
     private void loadFragment(Fragment fragment) {

@@ -31,8 +31,8 @@ public class ArtifactViewHolder extends RecyclerView.ViewHolder {
         secondaryInfo.setText(artifact.getPeriodNum().name());
         Glide.with(img.getContext())
                 .load(artifact.getImage())
-                .placeholder(R.drawable.ic_launcher_foreground_scaled)
-                .error(R.drawable.ic_launcher_foreground_scaled)
+                .placeholder(R.drawable.rawad_placeholder)
+                .error(R.drawable.rawad_placeholder)
                 .centerCrop()
                 .into(img);
         itemView.setOnClickListener(v -> listener.onArtifactClick(artifact));

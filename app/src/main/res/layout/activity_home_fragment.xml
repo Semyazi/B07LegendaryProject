@@ -130,57 +130,44 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none">
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <Button
+                android:id="@+id/button_prev_page"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/previous_page"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:backgroundTint="@color/button_primary" />
 
             <LinearLayout
                 android:id="@+id/layout_page_numbers"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="horizontal" />
+
+            <Button
+                android:id="@+id/button_next_page"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp">
+                android:layout_marginStart="8dp"
+                android:text="@string/next_page"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:backgroundTint="@color/button_primary" />
 
-                <Button
-                    android:id="@+id/button_prev_page"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/previous_page"
-                    android:textAllCaps="false"
-                    android:textSize="12sp"
-                    app:backgroundTint="@color/button_primary" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/text_current_page"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
-                    android:text="@string/page_placeholder"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    tools:text="1  2  3  4  5" />
-
-                <Button
-                    android:id="@+id/button_next_page"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/next_page"
-                    android:textAllCaps="false"
-                    android:textSize="12sp"
-                    app:backgroundTint="@color/button_primary" />
-
-            </LinearLayout>
-
-        </HorizontalScrollView>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
