@@ -38,6 +38,8 @@ dependencies {
     implementation(libs.firebase.database)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.recyclerview)
+    implementation(libs.glide)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
