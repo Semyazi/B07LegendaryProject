@@ -1,7 +1,9 @@
 package com.professional.b07legendaryproject2026.fragments;
 
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -105,6 +107,18 @@ public class HomeFragment extends Fragment {
 
         itemsPerPageSpinner = view.findViewById(R.id.spinner_items_per_page);
         if (itemsPerPageSpinner != null) {
+            // Dismiss Toast when user interacts with the spinner
+            itemsPerPageSpinner.setOnTouchListener(new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        ToastUtils.cancelToast();
+                    }
+                    return false; // Let the spinner handle the touch for dropdown
+                }
+            });
+
             itemsPerPageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -137,25 +151,52 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateDisplayedArtifacts() {
-        if (itemsPerPageSpinner == null) return;
+        if (itemsPerPageSpinner == null) {
+            return;
+        }
 
+        // Capture scroll position logic
         int firstVisiblePos = -1;
         RecyclerView recyclerView = null;
-        if(getView() != null)
+        if (getView() != null) {
             recyclerView = getView().findViewById(R.id.recycler_view_artifacts);
+        }
 
-        if (recyclerView != null && recyclerView.getLayoutManager() instanceof LinearLayoutManager)
-            firstVisiblePos = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        if (recyclerView != null) {
+            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+            if (layoutManager instanceof LinearLayoutManager) {
+                LinearLayoutManager linearManager = (LinearLayoutManager) layoutManager;
+                firstVisiblePos = linearManager.findFirstVisibleItemPosition();
+            }
+        }
 
-        int numToShow = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
-        List<Artifact> newList = new ArrayList<>();
-        for (int i = 0; i < Math.min(numToShow, allArtifacts.size()); i++)
-            newList.add(allArtifacts.get(i));
+        String selectedItem = itemsPerPageSpinner.getSelectedItem().toString();
+        int numToShow = Integer.parseInt(selectedItem);
 
-        artifactAdapter.submitList(newList);
+        List<Artifact> limitedList = new ArrayList<>();
+        int totalAvailable = allArtifacts.size();
+        int endLimit;
+        if (numToShow < totalAvailable) {
+            endLimit = numToShow;
+        } else {
+            endLimit = totalAvailable;
+        }
 
-        if (recyclerView != null && firstVisiblePos != -1 && firstVisiblePos >= numToShow)
-            recyclerView.scrollToPosition(numToShow - 1);
+        for (int i = 0; i < endLimit; i++) {
+            limitedList.add(allArtifacts.get(i));
+        }
+
+        artifactAdapter.submitList(limitedList);
+
+        // Smart scroll maintenance
+        if (recyclerView != null) {
+            if (firstVisiblePos != -1) {
+                if (firstVisiblePos >= numToShow) {
+                    // If user was scrolled past the new limit, jump to the last item
+                    recyclerView.scrollToPosition(numToShow - 1);
+                }
+            }
+        }
     }
 
     private void loadFragment(Fragment fragment) {

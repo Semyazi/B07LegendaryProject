@@ -13,4 +13,10 @@ public class ToastUtils {
         currentToast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
         currentToast.show();
     }
+
+    public static void cancelToast() {
+        if (currentToast != null) {
+            currentToast.cancel();
+        }
+    }
 }
