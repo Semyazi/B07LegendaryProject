@@ -9,7 +9,7 @@ public class ArtifactRepository {
         List<Artifact> artifacts = new ArrayList<>();
         for (int i = 0; i <= count; i++) {
             Artifact a = new Artifact();
-            if(i == 1) {
+            if(i == 0) {
                 a.setLotNumber("rawad-001");
                 a.setName("rawad");
             } else {
@@ -17,7 +17,7 @@ public class ArtifactRepository {
                 a.setName("Item #"+i);
                 a.setImage("https://picsum.photos/400?frick_cache="+System.nanoTime());
             }
-            a.setPeriodNum(Artifact.PeriodNum.values()[i%19]);
+            a.setPeriodNum(Artifact.PeriodNum.values()[i % 19]);
             artifacts.add(a);
         }
         return artifacts;
