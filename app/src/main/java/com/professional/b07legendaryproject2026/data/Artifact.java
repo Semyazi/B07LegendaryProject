@@ -198,6 +198,30 @@ public class Artifact {
     public void setMaterialNum(MaterialNum materialNum) { this.materialNum = materialNum == null ? MaterialNum.UNKNOWN : materialNum; }
 
     public PeriodNum getPeriodNum() { return periodNum; }
+    public String getPeriodDescription() {
+        switch(periodNum) {
+            case UNKNOWN: return "Unknown Dynasty";
+            case SHANG: return "Shang Dynasty (c. 1600-1046 BCE)";
+            case WESTERN_ZHOU: return "Western Zhou Dynasty (c. 1046-771 BCE)";
+            case EASTERN_ZHOU: return "Eastern Zhou Dynasty (770-256 BCE)";
+            case QIN: return "Qin Dynasty (221-206 BCE)";
+            case HAN: return "Han Dynasty (206 BCE-220 CE)";
+            case THREE_KINGDOMS: return "Three Kingdoms Period (220-280 CE)";
+            case JIN1: return "Jin Dynasty (266-420 CE)";
+            case SOUTHERN_AND_NORTHERN: return "Southern and Northern Dynasties (420-589 CE)";
+            case SUI: return "Sui Dynasty (581-618 CE)";
+            case TANG: return "Tang Dynasty (618-907 CE)";
+            case FIVE_DYNASTIES_AND_TEN_KINGDOMS: return "Five Dynasties and Ten Kingdoms (907-960 CE)";
+            case SONG: return "Song Dynasty (960-1279 CE)";
+            case LIAO: return "Liao Dynasty (907-1125 CE)";
+            case JIN2: return "Jin Dynasty (1115-1234 CE)";
+            case YUAN: return "Yuan Dynasty (1271-1368 CE)";
+            case MING: return "Ming Dynasty (1368-1644 CE)";
+            case QING: return "Qing Dynasty (1644-1912 CE)";
+            case REPUBLIC_OF_CHINA: return "Republic of China Period (1912-1949 CE)";
+        }
+        return "";
+    }
     public void setPeriodNum(PeriodNum periodNum) { this.periodNum = periodNum == null ? PeriodNum.UNKNOWN : periodNum; }
 
     public String getCulturalOrigin() { return culturalOrigin; }

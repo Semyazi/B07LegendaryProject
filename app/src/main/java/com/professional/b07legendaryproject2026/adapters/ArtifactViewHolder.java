@@ -28,7 +28,7 @@ public class ArtifactViewHolder extends RecyclerView.ViewHolder {
     public void bind(Artifact artifact, OnArtifactClickListener listener) {
         name.setText(artifact.getName());
         lotNumber.setText(artifact.getLotNumber());
-        secondaryInfo.setText(artifact.getPeriodNum().name());
+        secondaryInfo.setText(artifact.getPeriodDescription());
         Glide.with(img.getContext())
                 .load(artifact.getImage())
                 .placeholder(R.drawable.rawad_placeholder)
