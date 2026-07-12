@@ -248,7 +248,7 @@ public class HomeFragment extends Fragment {
         }
 
 
-        int startIndex = (currentPage - 1) * itemsPerPage; // how many cards were on all the previous pages?
+        int startIndex = (currentPage - 1) * itemsPerPage; // how many cards were on all the previous pages? we start there
         int endIndex = Math.min(startIndex + itemsPerPage, totalAvailable);
 
         List<Artifact> limitedList = new ArrayList<>();
