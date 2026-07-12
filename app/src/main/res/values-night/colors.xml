@@ -9,4 +9,6 @@
     <color name="imperial_red">#ED2939</color>
     <color name="accent_action">@color/imperial_red</color>
     <color name="button_primary">#333333</color>
+    <color name="dialog_button_text">@color/taam_gold</color>
+    <color name="disabled_text_color">#66FFFFFF</color>
 </resources>
