@@ -42,6 +42,34 @@ public class HomeFragment extends Fragment {
                     searchView.setIconified(false);
                 }
             });
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    ToastUtils.showToast(getContext(), query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    return false;
+                }
+            });
+
+            // Make the magnifying glass also trigger a search and show feedback
+            View searchIcon = searchView.findViewById(androidx.appcompat.R.id.search_mag_icon);
+            if (searchIcon != null) {
+                // Add ripple effect for visual feedback
+                searchIcon.setBackgroundResource(R.drawable.search_icon_background);
+                searchIcon.setFocusable(true);
+                searchIcon.setClickable(true);
+
+                searchIcon.setOnClickListener(v -> {
+                    String query = searchView.getQuery().toString();
+                    if (!query.isEmpty()) {
+                        searchView.setQuery(query, true);
+                    }
+                });
+            }
         }
 
         View buttonProfile = view.findViewById(R.id.button_profile);
@@ -107,7 +135,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void updateDisplayedArtifacts() {   
+    private void updateDisplayedArtifacts() {
         if (itemsPerPageSpinner == null) return;
 
         int numToShow = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
