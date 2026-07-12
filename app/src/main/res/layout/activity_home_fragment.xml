@@ -36,7 +36,8 @@
                 android:layout_weight="1"
                 android:text="@string/my_collections"
                 android:textAllCaps="false"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                app:backgroundTint="@color/button_primary" />
 
             <Button
                 android:id="@+id/button_profile"
@@ -47,7 +48,8 @@
                 android:layout_weight="1"
                 android:text="@string/profile"
                 android:textAllCaps="false"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                app:backgroundTint="@color/button_primary" />
 
             <Button
                 android:id="@+id/button_logout"
@@ -58,7 +60,8 @@
                 android:layout_weight="1"
                 android:text="@string/logout"
                 android:textAllCaps="false"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                app:backgroundTint="@color/accent_action" />
 
         </LinearLayout>
 
@@ -92,7 +95,7 @@
         android:scrollbarDefaultDelayBeforeFade="50000"
         android:scrollbarFadeDuration="0"
         android:scrollbarThumbVertical="@drawable/custom_scrollbar_thumb"
-        android:scrollbarSize="4dp"
+        android:scrollbarSize="6dp"
         android:scrollbarStyle="insideOverlay"
         app:layout_constraintBottom_toTopOf="@id/pagination_bar_container"
         app:layout_constraintEnd_toEndOf="parent"
@@ -119,7 +122,7 @@
         android:id="@+id/pagination_bar_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:background="@color/primary_background"
         android:orientation="vertical"
         android:paddingTop="4dp"
         android:paddingBottom="8dp"
@@ -149,7 +152,8 @@
                     android:layout_marginEnd="8dp"
                     android:text="@string/previous_page"
                     android:textAllCaps="false"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/button_primary" />
 
                 <TextView
                     android:id="@+id/text_current_page"
@@ -159,6 +163,7 @@
                     android:layout_marginStart="12dp"
                     android:layout_marginEnd="12dp"
                     android:text="@string/page_placeholder"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     tools:text="1  2  3  4  5" />
 
@@ -170,7 +175,8 @@
                     android:layout_marginEnd="8dp"
                     android:text="@string/next_page"
                     android:textAllCaps="false"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/button_primary" />
 
             </LinearLayout>
 
@@ -187,6 +193,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="@string/items_per_page_label"
+                android:textColor="@color/text_primary"
                 android:textSize="12sp" />
 
             <Spinner

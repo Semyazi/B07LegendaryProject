@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/taam_background"
+    android:background="@color/primary_background"
     tools:context=".fragments.ProfileFragment">
 
     <ScrollView
@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Change Username"
-                android:textColor="@color/taam_text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -32,9 +32,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="DemoUser"
+                android:hint="DefaultUser"
                 android:inputType="textPersonName"
                 android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:background="@color/search_bar_background" />
 
             <TextView
@@ -42,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Change PW"
-                android:textColor="@color/taam_text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -54,6 +56,8 @@
                 android:hint="New Password"
                 android:inputType="textPassword"
                 android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:background="@color/search_bar_background" />
 
             <TextView
@@ -62,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Re-enter PW"
-                android:textColor="@color/taam_text_dark"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
@@ -75,6 +79,8 @@
                 android:hint="Confirm New Password"
                 android:inputType="textPassword"
                 android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
                 android:background="@color/search_bar_background"
                 android:visibility="gone" />
 
@@ -94,7 +100,7 @@
                 android:textAllCaps="true"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                app:backgroundTint="@color/black"
+                app:backgroundTint="@color/accent_action"
                 android:textColor="@color/white" />
 
         </LinearLayout>

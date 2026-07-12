@@ -28,7 +28,7 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
     private ArtifactAdapter artifactAdapter;
-    private List<Artifact> allArtifacts = new ArrayList<>();
+    private final List<Artifact> allArtifacts = new ArrayList<>();
     private Spinner itemsPerPageSpinner;
 
     @Nullable

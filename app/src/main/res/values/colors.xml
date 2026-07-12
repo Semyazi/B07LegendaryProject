@@ -7,4 +7,14 @@
     <color name="taam_text_dark">#1A1A1A</color>
     <color name="taam_text_gray">#5A5A5A</color>
     <color name="search_bar_background">#F0F0F0</color>
+    <color name="imperial_red">#ED2939</color>
+    <color name="imperial_red_muted">#B22222</color>
+
+    <!-- Semantic Colors (Light Theme) -->
+    <color name="primary_background">@color/taam_background</color>
+    <color name="card_surface">@color/white</color>
+    <color name="text_primary">@color/taam_text_dark</color>
+    <color name="text_secondary">@color/taam_text_gray</color>
+    <color name="accent_action">@color/imperial_red_muted</color>
+    <color name="button_primary">@color/black</color>
 </resources>
