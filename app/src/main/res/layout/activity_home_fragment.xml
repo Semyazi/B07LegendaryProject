@@ -24,41 +24,41 @@
             android:layout_marginTop="6dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
 
             <Button
                 android:id="@+id/button_collections"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
                 android:text="@string/my_collections"
                 android:textAllCaps="false"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
             <Button
                 android:id="@+id/button_profile"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
                 android:text="@string/profile"
                 android:textAllCaps="false"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
             <Button
                 android:id="@+id/button_logout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
                 android:text="@string/logout"
                 android:textAllCaps="false"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
         </LinearLayout>
 
@@ -84,9 +84,16 @@
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:paddingBottom="8dp"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:scrollbarDefaultDelayBeforeFade="50000"
+        android:scrollbarFadeDuration="0"
+        android:scrollbarThumbVertical="@drawable/custom_scrollbar_thumb"
+        android:scrollbarSize="4dp"
+        android:scrollbarStyle="insideOverlay"
         app:layout_constraintBottom_toTopOf="@id/pagination_bar_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

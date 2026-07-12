@@ -13,6 +13,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.professional.b07legendaryproject2026.MainActivity;
@@ -130,7 +131,7 @@ public class HomeFragment extends Fragment {
             a.setName("Artifact " + i);
             a.setPeriodNum(Artifact.PeriodNum.UNKNOWN);
             // Use specific URLs for a few to test loading, leave others for placeholder
-            if (i == 1) a.setImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo24-TgibHQu-TJ4mons88cFjtyJ1kea_dvoBKt_bEPBwe8Zv8i10l_8&s=10");
+            if (i == 1 || i == 2 || i == 4) a.setImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo24-TgibHQu-TJ4mons88cFjtyJ1kea_dvoBKt_bEPBwe8Zv8i10l_8&s=10");
             allArtifacts.add(a);
         }
     }
@@ -138,12 +139,23 @@ public class HomeFragment extends Fragment {
     private void updateDisplayedArtifacts() {
         if (itemsPerPageSpinner == null) return;
 
+        int firstVisiblePos = -1;
+        RecyclerView recyclerView = null;
+        if(getView() != null)
+            recyclerView = getView().findViewById(R.id.recycler_view_artifacts);
+
+        if (recyclerView != null && recyclerView.getLayoutManager() instanceof LinearLayoutManager)
+            firstVisiblePos = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+
         int numToShow = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
-        List<Artifact> limitedList = new ArrayList<>();
-        for (int i = 0; i < Math.min(numToShow, allArtifacts.size()); i++) {
-            limitedList.add(allArtifacts.get(i));
-        }
-        artifactAdapter.submitList(limitedList);
+        List<Artifact> newList = new ArrayList<>();
+        for (int i = 0; i < Math.min(numToShow, allArtifacts.size()); i++)
+            newList.add(allArtifacts.get(i));
+
+        artifactAdapter.submitList(newList);
+
+        if (recyclerView != null && firstVisiblePos != -1 && firstVisiblePos >= numToShow)
+            recyclerView.scrollToPosition(numToShow - 1);
     }
 
     private void loadFragment(Fragment fragment) {
