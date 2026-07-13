@@ -24,6 +24,9 @@ android {
         }
     }
     compileOptions {
+        //Enable Desugaring to allow use of Java 8+ APIs
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -36,7 +39,6 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.database)
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.recyclerview)
     implementation(libs.glide)
 
@@ -46,4 +48,10 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    //OkHttp for Http upload reqs to Supabase
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    //Desugaring Dependency
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
