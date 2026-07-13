@@ -17,7 +17,7 @@ public class Comment {
 
     }
 
-    //Get and Set methods
+    //Get methods
     public String getMsg() {
         return msg;
     }
