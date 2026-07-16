@@ -42,6 +42,7 @@ public class HomeFragment extends Fragment {
     private Spinner itemsPerPageSpinner;
     private PaginationManager paginationManager;
     private SearchManager searchManager;
+    private RecyclerView recyclerView;
 
     @Nullable
     @Override
@@ -86,7 +87,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupRecyclerView(View view) {
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_artifacts);
+        recyclerView = view.findViewById(R.id.recycler_view_artifacts);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         artifactAdapter = new ArtifactAdapter(a -> ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName()));
         recyclerView.setAdapter(artifactAdapter);
@@ -99,6 +100,7 @@ public class HomeFragment extends Fragment {
 
         paginationManager = new PaginationManager(getContext(), container, prev, next, page -> {
             updateDisplayedArtifacts();
+            scrollToTop();
         });
     }
 
@@ -170,5 +172,11 @@ public class HomeFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private void scrollToTop(){
+        if(recyclerView == null)
+            return;
+        recyclerView.scrollToPosition(0);
     }
 }
