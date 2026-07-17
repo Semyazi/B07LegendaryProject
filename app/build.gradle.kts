@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.recyclerview)
     implementation(libs.glide)
