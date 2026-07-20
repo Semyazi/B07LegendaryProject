@@ -7,10 +7,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final String TAG = "MainActivity";
     FirebaseDatabase db;
 
     @Override
@@ -20,8 +22,22 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/");
 
-        if (savedInstanceState == null) {
-            loadFragment(new HomeFragment(), false);
+        // fake auth login for now
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            FirebaseAuth.getInstance().signInAnonymously()
+                .addOnSuccessListener(authResult -> {
+                    Log.d(TAG, "Anonymous authentication successful");
+                    if (savedInstanceState == null) {
+                        loadFragment(new HomeFragment(), false);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Anonymous authentication failed", e);
+                });
+        } else {
+            if (savedInstanceState == null) {
+                loadFragment(new HomeFragment(), false);
+            }
         }
     }
 
