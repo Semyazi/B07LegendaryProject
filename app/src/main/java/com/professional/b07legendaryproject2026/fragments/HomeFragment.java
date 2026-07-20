@@ -136,8 +136,20 @@ public class HomeFragment extends Fragment {
 
     private void loadInitialData() {
         allArtifacts.clear();
-        allArtifacts.addAll(repository.getArtifacts(600));
-        updateDisplayedArtifacts();
+        repository.getArtifacts(getContext(), new ArtifactRepository.RepositoryCallback() {
+            @Override
+            public void onDataLoaded(List<Artifact> artifacts) {
+                if (isAdded()) {
+                    allArtifacts.addAll(artifacts);
+                    updateDisplayedArtifacts();
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+
+            }
+        });
     }
 
     private void updateDisplayedArtifacts() {

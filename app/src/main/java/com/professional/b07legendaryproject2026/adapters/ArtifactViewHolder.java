@@ -1,12 +1,19 @@
 package com.professional.b07legendaryproject2026.adapters;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.data.Artifact;
@@ -29,10 +36,26 @@ public class ArtifactViewHolder extends RecyclerView.ViewHolder {
         name.setText(artifact.getName());
         lotNumber.setText(artifact.getLotNumber());
         secondaryInfo.setText(artifact.getPeriodDescription());
+
+        img.setBackgroundResource(R.drawable.skeleton_placeholder);
+
         Glide.with(img.getContext())
                 .load(artifact.getImage())
-                .placeholder(R.drawable.rawad_placeholder)
-                .error(R.drawable.rawad_placeholder)
+                .placeholder(R.drawable.skeleton_placeholder)
+                .error(R.drawable.skeleton_placeholder)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        // Remove background once image is ready to avoid overlapping
+                        img.setBackground(null);
+                        return false;
+                    }
+                })
                 .centerCrop()
                 .into(img);
         itemView.setOnClickListener(v -> listener.onArtifactClick(artifact));
