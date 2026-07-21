@@ -16,7 +16,7 @@ import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.adapters.ArtifactViewHolder;
 import com.professional.b07legendaryproject2026.data.Artifact;
 
-class DetailedArtifactFragment extends Fragment {
+public class DetailedArtifactFragment extends Fragment {
 
     private static final String ARTIFACT = "clicked-artifact";
 
