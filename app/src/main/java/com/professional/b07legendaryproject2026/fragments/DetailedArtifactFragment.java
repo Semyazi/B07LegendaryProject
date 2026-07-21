@@ -64,25 +64,25 @@ public class DetailedArtifactFragment extends Fragment {
             //material.setText(); TODO
 
             TextView origin = view.findViewById(R.id.text_artifact_cultural_origin);
-            //origin.setText(); TODO
+            origin.setText(artifact.getCulturalOrigin());
 
             TextView dimensions = view.findViewById(R.id.text_artifact_dimensions);
-            //dimentsion.setText(); TODO
+            dimensions.setText(artifact.getDimensions());
 
             TextView condition = view.findViewById(R.id.text_artifact_condition);
-            //contdion.setText(); TODO
+            condition.setText(artifact.getConditionReport());
 
             TextView location = view.findViewById(R.id.text_artifact_location);
-            //location.setText(); TODO
+            location.setText(artifact.getCurrentLocation());
 
             TextView acquisitionMethod = view.findViewById(R.id.text_artifact_acq_method);
-            //acquisitionMethod.setText(); TODO
+            acquisitionMethod.setText(artifact.getAcquisitionMethod());
 
             TextView provenance = view.findViewById(R.id.text_artifact_provenance);
-            //provenance.setText(); TODO
+            provenance.setText(artifact.getProvenance());
 
             TextView accessionNum = view.findViewById(R.id.text_artifact_accession_num);
-            //accessionNum.setText(); TODO
+            accessionNum.setText(artifact.getAccessionNumber());
         }
         return view;
     }
