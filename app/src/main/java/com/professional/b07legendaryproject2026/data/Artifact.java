@@ -1,6 +1,8 @@
 package com.professional.b07legendaryproject2026.data;
 
-public class Artifact {
+import java.io.Serializable;
+
+public class Artifact implements  Serializable {
     // Mandatory fields
     private String lotNumber;
     private String name;

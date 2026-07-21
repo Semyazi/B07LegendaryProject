@@ -19,5 +19,5 @@
     <!-- Supabase values -->
     <string name="supabase_url">https://mnwigvrikfcelubzjxmo.supabase.co</string>
     <string name="supabase_anon_key">sb_publishable_oxk7NLhfmoitITvSMjtH7A_IXmBk8kN</string>
-    <string name="supabase_image_bucket">artifact_images</string>
+    <string name="supabase_image_bucket">artifact-images</string>
 </resources>
