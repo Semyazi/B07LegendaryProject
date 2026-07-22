@@ -60,6 +60,56 @@
                 android:textColorHint="@color/text_secondary"
                 android:background="@color/search_bar_background" />
 
+            <LinearLayout
+                android:id="@+id/layout_password_requirements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/req_length"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• At least 8 characters"
+                    android:textSize="12sp"
+                    android:textColor="@color/imperial_red" />
+
+                <TextView
+                    android:id="@+id/req_uppercase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• One uppercase letter"
+                    android:textSize="12sp"
+                    android:textColor="@color/imperial_red" />
+
+                <TextView
+                    android:id="@+id/req_lowercase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• One lowercase letter"
+                    android:textSize="12sp"
+                    android:textColor="@color/imperial_red" />
+
+                <TextView
+                    android:id="@+id/req_digit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• One digit"
+                    android:textSize="12sp"
+                    android:textColor="@color/imperial_red" />
+
+                <TextView
+                    android:id="@+id/req_special"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="• One special character (!@#$%^&amp;*())"
+                    android:textSize="12sp"
+                    android:textColor="@color/imperial_red" />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/reenter_password_label"
                 android:layout_width="wrap_content"
