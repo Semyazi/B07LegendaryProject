@@ -65,6 +65,13 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/button_manage_artifacts"
+            android:layout_width="385dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Manage Artifacts" />
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_view_home"
             android:layout_width="match_parent"

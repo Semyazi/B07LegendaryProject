@@ -30,6 +30,11 @@ import com.professional.b07legendaryproject2026.managers.PaginationManager;
 import com.professional.b07legendaryproject2026.managers.SearchManager;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +56,7 @@ public class HomeFragment extends Fragment {
 
         setupSearch(view);
         setupNavigationButtons(view);
+        showAdminButtonIfAdmin(view);
         setupRecyclerView(view);
         setupPagination(view);
         setupItemsPerPageSpinner(view);
@@ -84,6 +90,35 @@ public class HomeFragment extends Fragment {
         if (collectionsButton != null) {
             collectionsButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Viewing user collections."));
         }
+    }
+
+    private void checkAdmin(){
+
+    }
+    private void showAdminButtonIfAdmin(View view){
+        View manageArtifactsButton = view.findViewById(R.id.button_manage_artifacts);
+        if (manageArtifactsButton == null) return;
+        manageArtifactsButton.setVisibility(View.GONE);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) return;
+        
+        String uid = auth.getCurrentUser().getUid();
+        FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/")
+        .getReference("users")
+        .child(uid)
+        .child("admin")
+        .addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            Boolean isAdmin = snapshot.getValue(Boolean.class);
+            if (Boolean.TRUE.equals(isAdmin)) {
+                manageArtifactsButton.setVisibility(View.VISIBLE);
+            }
+        }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+        
     }
 
     private void setupRecyclerView(View view) {
