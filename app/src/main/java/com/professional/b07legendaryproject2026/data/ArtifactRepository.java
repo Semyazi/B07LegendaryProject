@@ -1,8 +1,5 @@
 package com.professional.b07legendaryproject2026.data;
 
-import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
@@ -10,71 +7,90 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/** Reads artifact metadata from Firebase. Images themselves remain in Supabase. */
 public class ArtifactRepository {
-    private final DatabaseReference artifactsRef = FirebaseDatabase.getInstance().getReference("artifacts");
+    private static final String DATABASE_URL =
+            "https://b07legendaryproject-default-rtdb.firebaseio.com/";
 
-    public interface RepositoryCallback {
-        void onDataLoaded(List<Artifact> artifacts);
+    public interface ArtifactsCallback {
+        void onArtifactsLoaded(List<Artifact> artifacts);
         void onError(String message);
     }
 
-    public void getArtifacts(Context c, RepositoryCallback callback) {
-        artifactsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private final DatabaseReference artifactsReference;
+    private ValueEventListener artifactsListener;
+
+    public ArtifactRepository() {
+        artifactsReference = FirebaseDatabase.getInstance(DATABASE_URL)
+                .getReference("artifacts");
+    }
+
+    /**
+     * Observes artifacts so the grid refreshes whenever Firebase data changes.
+     * The Supabase public URL is read from details/imageUrl.
+     */
+    public void observeArtifacts(ArtifactsCallback callback) {
+        stopObserving();
+        artifactsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<Artifact> artifacts = new ArrayList<>();
                 for (DataSnapshot artifactSnapshot : snapshot.getChildren()) {
-                    Artifact a = new Artifact();
-
-                    // Lot number is the key
-                    a.setLotNumber(artifactSnapshot.getKey());
-                    
-                    // Access nested details
                     DataSnapshot details = artifactSnapshot.child("details");
-                    if (details.exists()) {
-                        a.setName(details.child("name").getValue(String.class));
-                        a.setDescription(details.child("description").getValue(String.class));
-                        Integer categoryId = details.child("category").getValue(Integer.class);
-                        if(categoryId != null) {
-                            a.setCategoryNum(Artifact.CategoryNum.fromId(categoryId));
-                        }
-                        Integer materialId = details.child("material").getValue(Integer.class);
-                        if(materialId != null) {
-                            a.setCategoryNum(Artifact.CategoryNum.fromId(materialId));
-                        }
-                        Integer periodId = details.child("dynastyPeriod").getValue(Integer.class);
-                        if (periodId != null) {
-                            a.setPeriodNum(Artifact.PeriodNum.fromId(periodId));
-                        }
-                        a.setCulturalOrigin(details.child("culturalOrigin").getValue(String.class));
-                        a.setDimensions(details.child("dimensions").getValue(String.class));
-                        a.setConditionReport(details.child("conditionReport").getValue(String.class));
-                        a.setCurrentLocation(details.child("currentLocation").getValue(String.class));
-                        a.setAcquisitionMethod(details.child("acquisitionMethod").getValue(String.class));
-                        a.setProvenance(details.child("provenance").getValue(String.class));
-                        a.setAccessionNumber(details.child("accessionNumber").getValue(String.class));
-                        a.setNotes(details.child("notes").getValue(String.class));
-                        a.setImage(details.child("imageUrl").getValue(String.class));
+                    if (!details.exists()) {
+                        continue;
                     }
-                    
-                    artifacts.add(a);
+
+                    Artifact artifact = new Artifact();
+                    artifact.setLotNumber(artifactSnapshot.getKey());
+                    artifact.setName(stringValue(details, "name"));
+                    artifact.setDescription(stringValue(details, "description"));
+                    artifact.setCategoryNum(Artifact.CategoryNum.fromId(
+                            intValue(details, "category", -1)));
+                    artifact.setMaterialNum(Artifact.MaterialNum.fromId(
+                            intValue(details, "material", -1)));
+                    artifact.setPeriodNum(Artifact.PeriodNum.fromId(
+                            intValue(details, "dynastyPeriod", -1)));
+                    artifact.setCulturalOrigin(stringValue(details, "culturalOrigin"));
+                    artifact.setDimensions(stringValue(details, "dimensions"));
+                    artifact.setConditionReport(stringValue(details, "conditionReport"));
+                    artifact.setCurrentLocation(stringValue(details, "currentLocation"));
+                    artifact.setAcquisitionMethod(stringValue(details, "acquisitionMethod"));
+                    artifact.setProvenance(stringValue(details, "provenance"));
+                    artifact.setAccessionNumber(stringValue(details, "accessionNumber"));
+                    artifact.setNotes(stringValue(details, "notes"));
+                    artifact.setImage(stringValue(details, "imageUrl"));
+                    artifacts.add(artifact);
                 }
-                callback.onDataLoaded(artifacts);
+                callback.onArtifactsLoaded(artifacts);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("ArtifactRepository.java","Firebase load cancelled", error.toException());
-                if (c != null) {
-                    ToastUtils.showToast(c, "Failed to load artifacts from database.");
-                }
                 callback.onError(error.getMessage());
             }
-        });
+        };
+        artifactsReference.addValueEventListener(artifactsListener);
+    }
+
+    public void stopObserving() {
+        if (artifactsListener != null) {
+            artifactsReference.removeEventListener(artifactsListener);
+            artifactsListener = null;
+        }
+    }
+
+    private static String stringValue(DataSnapshot parent, String childName) {
+        String value = parent.child(childName).getValue(String.class);
+        return value == null ? "" : value;
+    }
+
+    private static int intValue(DataSnapshot parent, String childName, int fallback) {
+        Object value = parent.child(childName).getValue();
+        return value instanceof Number ? ((Number) value).intValue() : fallback;
     }
 }
