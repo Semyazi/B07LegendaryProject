@@ -29,8 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadAnon(Bundle savedInstanceState){
         // fake auth login for now
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            FirebaseAuth.getInstance().signInAnonymously()
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signOut();
+        if (auth.getCurrentUser() == null) {
+            auth.signInAnonymously()
                 .addOnSuccessListener(authResult -> {
                     Log.d(TAG, "Anonymous authentication successful");
                     if (savedInstanceState == null) {

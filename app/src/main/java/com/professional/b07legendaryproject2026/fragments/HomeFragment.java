@@ -96,13 +96,13 @@ public class HomeFragment extends Fragment {
 
     }
     private void showAdminButtonIfAdmin(View view){
-        View manageArtifactsButton = view.findViewById(R.id.button_manage_artifacts);
-        if (manageArtifactsButton == null) return;
-        manageArtifactsButton.setVisibility(View.GONE);
+        View addButton = view.findViewById(R.id.button_add);
+        if (addButton == null) return;
+        addButton.setVisibility(View.GONE);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) return;
-        
+
         String uid = auth.getCurrentUser().getUid();
         FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/")
         .getReference("users")
@@ -113,7 +113,7 @@ public class HomeFragment extends Fragment {
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             Boolean isAdmin = snapshot.getValue(Boolean.class);
             if (Boolean.TRUE.equals(isAdmin)) {
-                manageArtifactsButton.setVisibility(View.VISIBLE);
+                addButton.setVisibility(View.VISIBLE);
             }
         }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
