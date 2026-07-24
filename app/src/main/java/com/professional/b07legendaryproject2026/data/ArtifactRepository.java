@@ -49,11 +49,11 @@ public class ArtifactRepository {
                     artifact.setLotNumber(artifactSnapshot.getKey());
                     artifact.setName(stringValue(details, "name"));
                     artifact.setDescription(stringValue(details, "description"));
-                    artifact.setCategoryNum(Artifact.CategoryNum.fromId(
+                    artifact.setCategoryNum(CategoryNum.fromId(
                             intValue(details, "category", -1)));
-                    artifact.setMaterialNum(Artifact.MaterialNum.fromId(
+                    artifact.setMaterialNum(MaterialNum.fromId(
                             intValue(details, "material", -1)));
-                    artifact.setPeriodNum(Artifact.PeriodNum.fromId(
+                    artifact.setPeriodNum(PeriodNum.fromId(
                             intValue(details, "dynastyPeriod", -1)));
                     artifact.setCulturalOrigin(stringValue(details, "culturalOrigin"));
                     artifact.setDimensions(stringValue(details, "dimensions"));
