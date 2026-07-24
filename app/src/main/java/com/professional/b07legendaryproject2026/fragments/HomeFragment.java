@@ -38,6 +38,7 @@ public class HomeFragment extends Fragment {
     private static final String KEY_ITEMS_PER_PAGE = "items_per_page";
     private ArtifactAdapter artifactAdapter;
     private final List<Artifact> allArtifacts = new ArrayList<>();
+    private final List<Artifact> filteredArtifacts = new ArrayList<>();
     private final ArtifactRepository repository = new ArtifactRepository();
     private Spinner itemsPerPageSpinner;
     private PaginationManager paginationManager;
@@ -62,7 +63,18 @@ public class HomeFragment extends Fragment {
 
     private void setupSearch(View view) {
         SearchView searchView = view.findViewById(R.id.search_view_home);
-        searchManager = new SearchManager(searchView, query -> ToastUtils.showToast(getContext(), query));
+        searchManager = new SearchManager(searchView, new SearchManager.SearchCallback() {
+            @Override
+            public void onSearchSubmitted(String query) {
+                performSearch(query);
+                searchView.clearFocus();
+            }
+
+            @Override
+            public void onSearchTextChanged(String newText) {
+                performSearch(newText);
+            }
+        });
     }
 
     private void setupNavigationButtons(View view) {
@@ -139,8 +151,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onArtifactsLoaded(List<Artifact> artifacts) {
                 if (!isAdded()) return;
+
                 allArtifacts.clear();
                 allArtifacts.addAll(artifacts);
+
+                filteredArtifacts.clear();
+                filteredArtifacts.addAll(artifacts);
+
                 paginationManager.setCurrentPage(1);
                 updateDisplayedArtifacts();
             }
@@ -165,12 +182,12 @@ public class HomeFragment extends Fragment {
 
         int itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
 
-        paginationManager.update(allArtifacts.size(), itemsPerPage);
+        paginationManager.update(filteredArtifacts.size(), itemsPerPage);
 
         int start = (paginationManager.getCurrentPage() - 1) * itemsPerPage;
-        int end = Math.min(start + itemsPerPage, allArtifacts.size());
+        int end = Math.min(start + itemsPerPage, filteredArtifacts.size());
 
-        List<Artifact> limitedList = allArtifacts.subList(start, end);
+        List<Artifact> limitedList = filteredArtifacts.subList(start, end);
         artifactAdapter.submitList(new ArrayList<>(limitedList));
     }
 
@@ -198,5 +215,22 @@ public class HomeFragment extends Fragment {
         if(recyclerView == null)
             return;
         recyclerView.scrollToPosition(0);
+    }
+
+    private void performSearch(String query) {
+        filteredArtifacts.clear();
+
+        if (query == null || query.trim().isEmpty()) {
+            filteredArtifacts.addAll(allArtifacts);
+        } else {
+            for (Artifact artifact : allArtifacts) {
+                if (artifact.matchesQuery(query)) {
+                    filteredArtifacts.add(artifact);
+                }
+            }
+        }
+
+        paginationManager.setCurrentPage(1);
+        updateDisplayedArtifacts();
     }
 }

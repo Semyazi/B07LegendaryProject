@@ -7,6 +7,7 @@ import com.professional.b07legendaryproject2026.R;
 public class SearchManager {
     public interface SearchCallback {
         void onSearchSubmitted(String query);
+        void onSearchTextChanged(String newText);
     }
 
     private final SearchView searchView;
@@ -38,7 +39,10 @@ public class SearchManager {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                if (callback != null) {
+                    callback.onSearchTextChanged(newText);
+                }
+                return true;
             }
         });
 

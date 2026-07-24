@@ -166,9 +166,9 @@ public class ArtifactRepositoryTest {
         assertEquals("", artifact.getName());
         assertEquals("", artifact.getDescription());
         assertEquals("", artifact.getImage());
-        assertSame(Artifact.CategoryNum.UNKNOWN, artifact.getCategoryNum());
-        assertSame(Artifact.MaterialNum.UNKNOWN, artifact.getMaterialNum());
-        assertSame(Artifact.PeriodNum.UNKNOWN, artifact.getPeriodNum());
+        assertSame(CategoryNum.UNKNOWN, artifact.getCategoryNum());
+        assertSame(MaterialNum.UNKNOWN, artifact.getMaterialNum());
+        assertSame(PeriodNum.UNKNOWN, artifact.getPeriodNum());
     }
 
     @Test
@@ -226,9 +226,9 @@ public class ArtifactRepositoryTest {
         verify(callback).onArtifactsLoaded(captor.capture());
 
         Artifact artifact = captor.getValue().get(0);
-        assertSame(Artifact.CategoryNum.UNKNOWN, artifact.getCategoryNum());
-        assertSame(Artifact.MaterialNum.UNKNOWN, artifact.getMaterialNum());
-        assertSame(Artifact.PeriodNum.UNKNOWN, artifact.getPeriodNum());
+        assertSame(CategoryNum.UNKNOWN, artifact.getCategoryNum());
+        assertSame(MaterialNum.UNKNOWN, artifact.getMaterialNum());
+        assertSame(PeriodNum.UNKNOWN, artifact.getPeriodNum());
     }
 
     @Test
@@ -343,27 +343,27 @@ public class ArtifactRepositoryTest {
         }
     }
 
-    private static Artifact.CategoryNum firstValidCategory() {
-        for (Artifact.CategoryNum value : Artifact.CategoryNum.values()) {
-            if (value != Artifact.CategoryNum.UNKNOWN) {
+    private static CategoryNum firstValidCategory() {
+        for (CategoryNum value : CategoryNum.values()) {
+            if (value != CategoryNum.UNKNOWN) {
                 return value;
             }
         }
         throw new AssertionError("CategoryNum has no valid values");
     }
 
-    private static Artifact.MaterialNum firstValidMaterial() {
-        for (Artifact.MaterialNum value : Artifact.MaterialNum.values()) {
-            if (value != Artifact.MaterialNum.UNKNOWN) {
+    private static MaterialNum firstValidMaterial() {
+        for (MaterialNum value : MaterialNum.values()) {
+            if (value != MaterialNum.UNKNOWN) {
                 return value;
             }
         }
         throw new AssertionError("MaterialNum has no valid values");
     }
 
-    private static Artifact.PeriodNum firstValidPeriod() {
-        for (Artifact.PeriodNum value : Artifact.PeriodNum.values()) {
-            if (value != Artifact.PeriodNum.UNKNOWN) {
+    private static PeriodNum firstValidPeriod() {
+        for (PeriodNum value : PeriodNum.values()) {
+            if (value != PeriodNum.UNKNOWN) {
                 return value;
             }
         }

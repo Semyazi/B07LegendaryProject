@@ -1,4 +1,5 @@
 package com.professional.b07legendaryproject2026.data;
+import java.util.Objects;
 
 public class Artifact {
     // Mandatory fields
@@ -19,129 +20,6 @@ public class Artifact {
     private String accessionNumber;
     private String notes;
     private String image;
-
-    public enum CategoryNum {
-        UNKNOWN(0),
-        PAINTING_AND_CALIGRAPHY(1),
-        CERAMICS(2),
-        BRONZEWARE(3),
-        LACQUERWARE(4),
-        JADEWARE(5),
-        ENAMELWARE(6),
-        GLASSWARE(7),
-        FURNITURE(8),
-        EMBROIDERY_AND_TEXTILES(9),
-        DOCUMENTS_AND_ARCHIVES(10),
-        GOLD_AND_SILVERWARE(11),
-        CLOCKS_AND_WATCHES(12),
-        RELIGIOUS_ARTIFACTS(13),
-        DAILYUSE_ITEMS(14),
-        WEAPONRY(15),
-        MISCELLANEOUS(16);
-
-        private final int id;
-
-        CategoryNum(int id) {
-            if(id>0&&id<17)
-                this.id = id;
-            else 
-                this.id=0;
-        }
-
-        public int getId() {
-            return this == UNKNOWN ? -1 : id - 1;
-        }
-
-        public static CategoryNum fromId(int id) {
-            for (CategoryNum value : values()) {
-                if (value != UNKNOWN && value.id - 1 == id) {
-                    return value;
-                }
-            }
-            return UNKNOWN;
-        }
-    }
-
-    public enum MaterialNum {
-        UNKNOWN(0),
-        BRONZE(1),
-        STONE(2),
-        WOOD(3),
-        JADE(4),
-        CERAMIC(5),
-        LACQUERWARE(6),
-        IVORY(7),
-        GOLD(8),
-        SILVER(9),
-        IRON(10),
-        MIXED_MEDIA(11);
-
-        private final int id;
-
-        MaterialNum(int id) {
-            if(id>0&&id<12)
-                this.id = id;
-            else 
-                this.id=0;
-        }
-
-        public int getId() {
-            return this == UNKNOWN ? -1 : id - 1;
-        }
-
-        public static MaterialNum fromId(int id) {
-            for (MaterialNum value : values()) {
-                if (value != UNKNOWN && value.id - 1 == id) {
-                    return value;
-                }
-            }
-            return UNKNOWN;
-        }
-    }
-
-    public enum PeriodNum {
-        UNKNOWN(0),
-        SHANG(1),
-        WESTERN_ZHOU(2),
-        EASTERN_ZHOU(3),
-        QIN(4),
-        HAN(5),
-        THREE_KINGDOMS(6),
-        JIN1(7),
-        SOUTHERN_AND_NORTHERN(8),
-        SUI(9),
-        TANG(10),
-        FIVE_DYNASTIES_AND_TEN_KINGDOMS(11),
-        SONG(12),
-        LIAO(13),
-        JIN2(14),
-        YUAN(15),
-        MING(16),
-        QING(17),
-        REPUBLIC_OF_CHINA(18);
-
-        private final int id;
-
-        PeriodNum(int id) {
-            if(id>0&&id<19)
-                this.id = id;
-            else 
-                this.id=0;
-        }
-
-        public int getId() {
-            return this == UNKNOWN ? -1 : id - 1;
-        }
-
-        public static PeriodNum fromId(int id) {
-            for (PeriodNum value : values()) {
-                if (value != UNKNOWN && value.id - 1 == id) {
-                    return value;
-                }
-            }
-            return UNKNOWN;
-        }
-    }
 
     public Artifact() {
         this.lotNumber = null;
@@ -199,28 +77,7 @@ public class Artifact {
 
     public PeriodNum getPeriodNum() { return periodNum; }
     public String getPeriodDescription() {
-        switch(periodNum) {
-            case UNKNOWN: return "Unknown Dynasty";
-            case SHANG: return "Shang Dynasty (c. 1600-1046 BCE)";
-            case WESTERN_ZHOU: return "Western Zhou Dynasty (c. 1046-771 BCE)";
-            case EASTERN_ZHOU: return "Eastern Zhou Dynasty (770-256 BCE)";
-            case QIN: return "Qin Dynasty (221-206 BCE)";
-            case HAN: return "Han Dynasty (206 BCE-220 CE)";
-            case THREE_KINGDOMS: return "Three Kingdoms Period (220-280 CE)";
-            case JIN1: return "Jin Dynasty (266-420 CE)";
-            case SOUTHERN_AND_NORTHERN: return "Southern and Northern Dynasties (420-589 CE)";
-            case SUI: return "Sui Dynasty (581-618 CE)";
-            case TANG: return "Tang Dynasty (618-907 CE)";
-            case FIVE_DYNASTIES_AND_TEN_KINGDOMS: return "Five Dynasties and Ten Kingdoms (907-960 CE)";
-            case SONG: return "Song Dynasty (960-1279 CE)";
-            case LIAO: return "Liao Dynasty (907-1125 CE)";
-            case JIN2: return "Jin Dynasty (1115-1234 CE)";
-            case YUAN: return "Yuan Dynasty (1271-1368 CE)";
-            case MING: return "Ming Dynasty (1368-1644 CE)";
-            case QING: return "Qing Dynasty (1644-1912 CE)";
-            case REPUBLIC_OF_CHINA: return "Republic of China Period (1912-1949 CE)";
-        }
-        return "";
+        return periodNum != null ? periodNum.getDescription() : "";
     }
     public void setPeriodNum(PeriodNum periodNum) { this.periodNum = periodNum == null ? PeriodNum.UNKNOWN : periodNum; }
 
@@ -250,4 +107,45 @@ public class Artifact {
 
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+
+    // Checks if any text or enum field in this artifact contains the search query string
+    public boolean matchesQuery(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return true;
+        }
+
+        String q = query.toLowerCase().trim();
+
+        return containsText(lotNumber, q) ||
+                containsText(name, q) ||
+                containsText(description, q) ||
+                containsText(culturalOrigin, q) ||
+                containsText(dimensions, q) ||
+                containsText(conditionReport, q) ||
+                containsText(currentLocation, q) ||
+                containsText(acquisitionMethod, q) ||
+                containsText(provenance, q) ||
+                containsText(accessionNumber, q) ||
+                containsText(notes, q) ||
+                (categoryNum != null && containsText(categoryNum.getDisplayName(), q)) ||
+                (materialNum != null && containsText(materialNum.getDisplayName(), q)) ||
+                (periodNum != null && containsText(periodNum.getDescription(), q));
+    }
+
+    private boolean containsText(String field, String target) {
+        return field != null && field.toLowerCase().contains(target);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Artifact artifact = (Artifact) o;
+        return Objects.equals(lotNumber, artifact.lotNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lotNumber);
+    }
 }
