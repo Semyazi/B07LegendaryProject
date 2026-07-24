@@ -51,28 +51,36 @@ public class SignupPresenterTest {
 
     @Test
     public void signup_passwordsDoNotMatch_showsConfirmPasswordError(){
-        presenter.signup("test@example.com", "password123", "password321");
+        presenter.signup("test@example.com", "Password123", "Password321");
         verify(view).showConfirmPasswordError("Passwords do not match");
         verify(model, never()).signup(any(), any(), any());
     }
 
     @Test
-    public void signup_validInput_callsModelSignup(){
+    public void signup_weakPassword_showsPasswordError() {
         presenter.signup("test@example.com", "password123", "password123");
+
+        verify(view).showPasswordError("Password must be at least 8 characters and include uppercase, lowercase, and a number");
+        verify(model, never()).signup(any(), any(), any());
+    }
+
+    @Test
+    public void signup_validInput_callsModelSignup(){
+        presenter.signup("test@example.com", "Password123", "Password123");
         verify(model).signup(
                 eq("test@example.com"),
-                eq("password123"),
+                eq("Password123"),
                 any(SignupContract.SignupCallback.class)
         );
     }
 
     @Test
     public void signup_modelSuccess_showsSignupSuccess() {
-        presenter.signup("test@example.com", "password123", "password123");
+        presenter.signup("test@example.com", "Password123", "Password123");
         ArgumentCaptor<SignupContract.SignupCallback> callbackCaptor = ArgumentCaptor.forClass(SignupContract.SignupCallback.class);
         verify(model).signup(
                 eq("test@example.com"),
-                eq("password123"),
+                eq("Password123"),
                 callbackCaptor.capture()
         );
         callbackCaptor.getValue().onSuccess();
@@ -81,11 +89,11 @@ public class SignupPresenterTest {
 
     @Test
     public void signup_modelFailure_showSignupFailure(){
-        presenter.signup("test@example.com", "password123", "password123");
+        presenter.signup("test@example.com", "Password123", "Password123");
         ArgumentCaptor<SignupContract.SignupCallback> callbackCaptor = ArgumentCaptor.forClass(SignupContract.SignupCallback.class);
         verify(model).signup(
                 eq("test@example.com"),
-                eq("password123"),
+                eq("Password123"),
                 callbackCaptor.capture());
         callbackCaptor.getValue().onFailure("Signup failed");
         verify(view).showSignupFailure("Signup failed");

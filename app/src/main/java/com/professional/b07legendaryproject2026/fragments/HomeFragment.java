@@ -55,7 +55,7 @@ public class HomeFragment extends Fragment {
         setupPagination(view);
         setupItemsPerPageSpinner(view);
 
-        loadInitialData();
+        loadArtifacts();
 
         return view;
     }
@@ -134,10 +134,30 @@ public class HomeFragment extends Fragment {
         loadItemsPerPagePreference();
     }
 
-    private void loadInitialData() {
-        allArtifacts.clear();
-        allArtifacts.addAll(repository.getArtifacts(600));
-        updateDisplayedArtifacts();
+    private void loadArtifacts() {
+        repository.observeArtifacts(new ArtifactRepository.ArtifactsCallback() {
+            @Override
+            public void onArtifactsLoaded(List<Artifact> artifacts) {
+                if (!isAdded()) return;
+                allArtifacts.clear();
+                allArtifacts.addAll(artifacts);
+                paginationManager.setCurrentPage(1);
+                updateDisplayedArtifacts();
+            }
+
+            @Override
+            public void onError(String message) {
+                if (!isAdded()) return;
+                ToastUtils.showToast(getContext(), "Could not load artifacts: " + message);
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        repository.stopObserving();
+        recyclerView = null;
+        super.onDestroyView();
     }
 
     private void updateDisplayedArtifacts() {
