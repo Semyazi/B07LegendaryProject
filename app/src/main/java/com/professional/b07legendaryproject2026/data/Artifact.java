@@ -49,12 +49,12 @@ public class Artifact {
         }
 
         public int getId() {
-            return id;
+            return this == UNKNOWN ? -1 : id - 1;
         }
 
         public static CategoryNum fromId(int id) {
             for (CategoryNum value : values()) {
-                if (value.id == id) {
+                if (value != UNKNOWN && value.id - 1 == id) {
                     return value;
                 }
             }
@@ -86,12 +86,12 @@ public class Artifact {
         }
 
         public int getId() {
-            return id;
+            return this == UNKNOWN ? -1 : id - 1;
         }
 
         public static MaterialNum fromId(int id) {
             for (MaterialNum value : values()) {
-                if (value.id == id) {
+                if (value != UNKNOWN && value.id - 1 == id) {
                     return value;
                 }
             }
@@ -130,12 +130,12 @@ public class Artifact {
         }
 
         public int getId() {
-            return id;
+            return this == UNKNOWN ? -1 : id - 1;
         }
 
         public static PeriodNum fromId(int id) {
             for (PeriodNum value : values()) {
-                if (value.id == id) {
+                if (value != UNKNOWN && value.id - 1 == id) {
                     return value;
                 }
             }

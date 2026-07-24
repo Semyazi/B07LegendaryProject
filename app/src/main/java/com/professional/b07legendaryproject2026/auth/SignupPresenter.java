@@ -8,7 +8,7 @@ public class SignupPresenter {
         if (password == null) {
             return false;
         }
-        String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
+        String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$";
         return password.matches(pattern);
     }
     public SignupPresenter(SignupContract.View view, SignupContract.Model model){
@@ -29,11 +29,11 @@ public class SignupPresenter {
             return;
         }
         if (!isStrongPassword(password)) {
-            view.showPasswordError("Password must be at least 8 characters and include uppercase, lowercase, and a number");
+            view.showPasswordError("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
             return;
         }
         if(!password.equals(confirmPassword)){
-            view.showConfirmPasswordError("Passwords do not match");
+            view.showConfirmPasswordError("Passwords do not match.");
             return;
         }
         model.signup(email, password, new SignupContract.SignupCallback(){
