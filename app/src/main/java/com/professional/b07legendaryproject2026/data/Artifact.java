@@ -250,4 +250,33 @@ public class Artifact {
 
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+
+    // Checks if any text or enum field in this artifact contains the search query string
+    public boolean matchesQuery(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return true;
+        }
+
+        String q = query.toLowerCase().trim();
+
+        return containsText(lotNumber, q) ||
+                containsText(name, q) ||
+                containsText(description, q) ||
+                containsText(culturalOrigin, q) ||
+                containsText(dimensions, q) ||
+                containsText(conditionReport, q) ||
+                containsText(currentLocation, q) ||
+                containsText(acquisitionMethod, q) ||
+                containsText(provenance, q) ||
+                containsText(accessionNumber, q) ||
+                containsText(notes, q) ||
+                containsText(getPeriodDescription(), q) ||
+                (categoryNum != null && containsText(categoryNum.name(), q)) ||
+                (materialNum != null && containsText(materialNum.name(), q)) ||
+                (periodNum != null && containsText(periodNum.name(), q));
+    }
+
+    private boolean containsText(String field, String target) {
+        return field != null && field.toLowerCase().contains(target);
+    }
 }
