@@ -13,7 +13,6 @@ firebaseAuth = "23.0.0"
 recyclerview = "1.3.2"
 glide = "4.16.0"
 activityKtx = "1.8.0"
-firebaseAuth = "24.2.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -28,7 +27,6 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
-firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
