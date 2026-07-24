@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.professional.b07legendaryproject2026.auth.FirebaseAuthModel;
 import com.professional.b07legendaryproject2026.auth.SignupContract;
 import com.professional.b07legendaryproject2026.auth.SignupPresenter;
 
@@ -31,7 +32,7 @@ public class SignupActivity extends AppCompatActivity implements SignupContract.
         signupButton = findViewById(R.id.signupButton);
         backToLoginButton = findViewById(R.id.backToLoginButton);
 
-        presenter = new SignupPresenter(this, new TemporarySignupModel());
+        presenter = new SignupPresenter(this, new FirebaseAuthModel(this));
 
         signupButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString();
@@ -69,12 +70,5 @@ public class SignupActivity extends AppCompatActivity implements SignupContract.
     @Override
     public void showSignupFailure(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private static class TemporarySignupModel implements SignupContract.Model{
-        @Override
-        public void signup(String email, String username, String password, SignupContract.SignupCallback callback){
-            callback.onSuccess();
-        }
     }
 }
