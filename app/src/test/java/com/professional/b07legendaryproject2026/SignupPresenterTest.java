@@ -29,58 +29,67 @@ public class SignupPresenterTest {
     }
 
     @Test
-    public void signup_emptyEmail_showsEmailError(){
-        presenter.signup("","password123", "password123");
+    public void signup_emptyEmail_showsEmailError() {
+        presenter.signup("", "testuser", "password123", "password123");
         verify(view).showEmailError("Email cannot be empty");
-        verify(model, never()).signup(any(), any(),any());
+        verify(model, never()).signup(any(), any(), any(), any());
+    }
+
+    @Test
+    public void signup_emptyUsername_showsUsernameError(){
+        presenter.signup("test@example.com", "", "Password123!", "Password123!");
+        verify(view).showUsernameError("Username cannot be empty");
+        verify(model, never()).signup(any(), any(), any(), any());
     }
 
     @Test
     public void signup_emptyPassword_showsPasswordError(){
-        presenter.signup("test@example.com", "", "password123");
+        presenter.signup("test@example.com", "testuser", "", "password123");
         verify(view).showPasswordError("Password cannot be empty");
-        verify(model, never()).signup(any(), any(), any());
+        verify(model, never()).signup(any(),any(), any(), any());
     }
 
     @Test
     public void signup_emptyConfirmPassword_showsConfirmPasswordError(){
-        presenter.signup("test@example.com", "password123", "");
+        presenter.signup("test@example.com","testuser", "password123", "");
         verify(view).showConfirmPasswordError("Confirm password cannot be empty");
-        verify(model, never()).signup(any(), any(), any());
+        verify(model, never()).signup(any(), any(),any(), any());
     }
 
     @Test
     public void signup_passwordsDoNotMatch_showsConfirmPasswordError(){
-        presenter.signup("test@example.com", "Password123", "Password321");
-        verify(view).showConfirmPasswordError("Passwords do not match");
-        verify(model, never()).signup(any(), any(), any());
+        presenter.signup("test@example.com","testuser", "Password123!", "Password321!");
+        verify(view).showConfirmPasswordError("Passwords do not match.");
+        verify(model, never()).signup(any(), any(),any(), any());
     }
 
     @Test
     public void signup_weakPassword_showsPasswordError() {
-        presenter.signup("test@example.com", "password123", "password123");
+        presenter.signup("test@example.com","testuser", "password123", "password123");
 
-        verify(view).showPasswordError("Password must be at least 8 characters and include uppercase, lowercase, and a number");
-        verify(model, never()).signup(any(), any(), any());
+        verify(view).showPasswordError("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+        verify(model, never()).signup(any(),any(), any(), any());
     }
 
     @Test
     public void signup_validInput_callsModelSignup(){
-        presenter.signup("test@example.com", "Password123", "Password123");
+        presenter.signup("test@example.com","testuser", "Password123!", "Password123!");
         verify(model).signup(
                 eq("test@example.com"),
-                eq("Password123"),
+                eq("testuser"),
+                eq("Password123!"),
                 any(SignupContract.SignupCallback.class)
         );
     }
 
     @Test
     public void signup_modelSuccess_showsSignupSuccess() {
-        presenter.signup("test@example.com", "Password123", "Password123");
+        presenter.signup("test@example.com","testuser", "Password123!", "Password123!");
         ArgumentCaptor<SignupContract.SignupCallback> callbackCaptor = ArgumentCaptor.forClass(SignupContract.SignupCallback.class);
         verify(model).signup(
                 eq("test@example.com"),
-                eq("Password123"),
+                eq("testuser"),
+                eq("Password123!"),
                 callbackCaptor.capture()
         );
         callbackCaptor.getValue().onSuccess();
@@ -89,11 +98,12 @@ public class SignupPresenterTest {
 
     @Test
     public void signup_modelFailure_showSignupFailure(){
-        presenter.signup("test@example.com", "Password123", "Password123");
+        presenter.signup("test@example.com","testuser", "Password123!", "Password123!");
         ArgumentCaptor<SignupContract.SignupCallback> callbackCaptor = ArgumentCaptor.forClass(SignupContract.SignupCallback.class);
         verify(model).signup(
                 eq("test@example.com"),
-                eq("Password123"),
+                eq("testuser"),
+                eq("Password123!"),
                 callbackCaptor.capture());
         callbackCaptor.getValue().onFailure("Signup failed");
         verify(view).showSignupFailure("Signup failed");
