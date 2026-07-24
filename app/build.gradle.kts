@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.recyclerview)
     implementation(libs.glide)
+    implementation(libs.firebase.auth)
 
 
     testImplementation(libs.junit)

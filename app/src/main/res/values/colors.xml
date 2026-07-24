@@ -19,4 +19,5 @@
     <color name="button_primary">@color/black</color>
     <color name="dialog_button_text">@color/taam_gold</color>
     <color name="disabled_text_color">#9E9E9E</color>
+    <color name="success_green">#2E7D32</color>
 </resources>
