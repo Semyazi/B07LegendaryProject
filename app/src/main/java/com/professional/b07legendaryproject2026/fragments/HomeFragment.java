@@ -18,7 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.professional.b07legendaryproject2026.MainActivity;
@@ -29,6 +28,11 @@ import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 import com.professional.b07legendaryproject2026.managers.PaginationManager;
 import com.professional.b07legendaryproject2026.managers.SearchManager;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +56,7 @@ public class HomeFragment extends Fragment {
 
         setupSearch(view);
         setupNavigationButtons(view);
+        showAdminButtonIfAdmin(view);
         setupRecyclerView(view);
         setupPagination(view);
         setupItemsPerPageSpinner(view);
@@ -86,8 +91,19 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
-      
-      private void showAdminButtonIfAdmin(View view){
+
+        View logoutButton = view.findViewById(R.id.button_logout);
+        if (logoutButton != null) {
+            logoutButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "You have successfully logged out."));
+        }
+
+        View collectionsButton = view.findViewById(R.id.button_collections);
+        if (collectionsButton != null) {
+            collectionsButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Viewing user collections."));
+        }
+    }
+
+          private void showAdminButtonIfAdmin(View view){
         View addButton = view.findViewById(R.id.button_add);
         if (addButton == null) return;
         addButton.setVisibility(View.GONE);
@@ -110,18 +126,6 @@ public class HomeFragment extends Fragment {
         }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
-        
-    }
-
-        View logoutButton = view.findViewById(R.id.button_logout);
-        if (logoutButton != null) {
-            logoutButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "You have successfully logged out."));
-        }
-
-        View collectionsButton = view.findViewById(R.id.button_collections);
-        if (collectionsButton != null) {
-            collectionsButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Viewing user collections."));
-        }
     }
 
     private void setupRecyclerView(View view) {
