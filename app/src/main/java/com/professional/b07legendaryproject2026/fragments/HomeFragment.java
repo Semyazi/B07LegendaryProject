@@ -55,6 +55,7 @@ public class HomeFragment extends Fragment {
 
         setupSearch(view);
         setupNavigationButtons(view);
+        showAdminButtonIfAdmin(view);
         setupRecyclerView(view);
         setupPagination(view);
         setupItemsPerPageSpinner(view);
@@ -118,10 +119,35 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void showAdminButtonIfAdmin(View view){
+        View addButton = view.findViewById(R.id.button_add);
+        if (addButton == null) return;
+        addButton.setVisibility(View.GONE);
+
+        if(UserSession.getInstance().isAdmin())
+            addButton.setVisibility(View.VISIBLE);
+    }
+
     private void setupRecyclerView(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_artifacts);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        artifactAdapter = new ArtifactAdapter(a -> ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName()));
+
+        artifactAdapter = new ArtifactAdapter(a -> {
+            if (getActivity() == null) {
+                return;
+            }
+
+            ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName());
+
+            Bundle args = new Bundle();
+            args.putSerializable("clicked-artifact", a);
+            DetailedArtifactFragment detailedArtifact = new DetailedArtifactFragment();
+            detailedArtifact.setArguments(args);
+
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(detailedArtifact, true);
+            }
+        });
         recyclerView.setAdapter(artifactAdapter);
     }
 
