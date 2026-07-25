@@ -86,6 +86,32 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
+      
+      private void showAdminButtonIfAdmin(View view){
+        View addButton = view.findViewById(R.id.button_add);
+        if (addButton == null) return;
+        addButton.setVisibility(View.GONE);
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) return;
+
+        String uid = auth.getCurrentUser().getUid();
+        FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/")
+        .getReference("users")
+        .child(uid)
+        .child("admin")
+        .addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            Boolean isAdmin = snapshot.getValue(Boolean.class);
+            if (Boolean.TRUE.equals(isAdmin)) {
+                addButton.setVisibility(View.VISIBLE);
+            }
+        }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+        
+    }
 
         View logoutButton = view.findViewById(R.id.button_logout);
         if (logoutButton != null) {
