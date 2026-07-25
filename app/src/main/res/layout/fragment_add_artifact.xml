@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_background">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add New Artifact"
+                android:textColor="@color/text_primary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- Mandatory Fields -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+                <TextView style="@style/TAAM_HeaderText" android:text="Lot Number " />
+                <TextView style="@style/TAAM_HeaderText" android:text="*" android:textColor="@color/imperial_red" />
+            </LinearLayout>
+            <EditText
+                android:id="@+id/edit_lot_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Unique ID (e.g. TAAM-001)"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+                <TextView style="@style/TAAM_HeaderText" android:text="Artifact Name " />
+                <TextView style="@style/TAAM_HeaderText" android:text="*" android:textColor="@color/imperial_red" />
+            </LinearLayout>
+            <EditText
+                android:id="@+id/edit_artifact_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name of the artifact"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+                <TextView style="@style/TAAM_HeaderText" android:text="Description " />
+                <TextView style="@style/TAAM_HeaderText" android:text="*" android:textColor="@color/imperial_red" />
+            </LinearLayout>
+            <EditText
+                android:id="@+id/edit_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Brief description"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:minLines="3"
+                android:gravity="top"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+                <TextView style="@style/TAAM_HeaderText" android:text="Category " />
+                <TextView style="@style/TAAM_HeaderText" android:text="*" android:textColor="@color/imperial_red" />
+            </LinearLayout>
+            <Spinner
+                android:id="@+id/spinner_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:padding="12dp"
+                android:background="@drawable/spinner_background"
+                android:entries="@array/category_options"
+                android:spinnerMode="dropdown"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+                <TextView style="@style/TAAM_HeaderText" android:text="Material " />
+                <TextView style="@style/TAAM_HeaderText" android:text="*" android:textColor="@color/imperial_red" />
+            </LinearLayout>
+            <Spinner
+                android:id="@+id/spinner_material"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:padding="12dp"
+                android:background="@drawable/spinner_background"
+                android:entries="@array/material_options"
+                android:spinnerMode="dropdown"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+                <TextView style="@style/TAAM_HeaderText" android:text="Dynasty/Period " />
+                <TextView style="@style/TAAM_HeaderText" android:text="*" android:textColor="@color/imperial_red" />
+            </LinearLayout>
+            <Spinner
+                android:id="@+id/spinner_dynasty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:padding="12dp"
+                android:background="@drawable/spinner_background"
+                android:entries="@array/dynasty_options"
+                android:spinnerMode="dropdown"/>
+
+            <!-- Optional Fields -->
+            <TextView style="@style/TAAM_HeaderText" android:text="Cultural Origin" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_origin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Dimensions" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_dimensions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Condition Report" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_condition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Current Location" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Acquisition Method" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_acquisition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Provenance" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_provenance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Accession Number" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_accession"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Notes" android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/edit_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/search_bar_background"
+                android:padding="12dp"
+                android:layout_marginTop="4dp"
+                android:minLines="2"
+                android:gravity="top"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"/>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Artifact Image" android:layout_marginTop="16dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+                <Button
+                    android:id="@+id/button_browse_gallery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Browse Gallery"
+                    app:backgroundTint="@color/black"
+                    android:textColor="@color/white"/>
+                <TextView
+                    android:id="@+id/text_image_path"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="No image selected"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/button_submit_artifact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Submit Artifact"
+                android:layout_marginTop="32dp"
+                android:padding="16dp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/accent_action"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

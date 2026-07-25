@@ -1,8 +1,12 @@
 <resources>
     <style name="TAAM_HeaderText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:letterSpacing">0.08</item>
-        <item name="android:textColor">@color/taam_text_dark</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>
