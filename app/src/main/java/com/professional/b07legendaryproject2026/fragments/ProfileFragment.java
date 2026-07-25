@@ -16,7 +16,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.professional.b07legendaryproject2026.R;
+import com.professional.b07legendaryproject2026.managers.UserSession;
+import com.professional.b07legendaryproject2026.utils.PasswordValidator;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import com.professional.b07legendaryproject2026.utils.UsernameValidator;
+import com.professional.b07legendaryproject2026.utils.ValidationResult;
 
 public class ProfileFragment extends Fragment {
 
@@ -39,6 +43,11 @@ public class ProfileFragment extends Fragment {
         TextView reqLowercase = view.findViewById(R.id.req_lowercase);
         TextView reqDigit = view.findViewById(R.id.req_digit);
         TextView reqSpecial = view.findViewById(R.id.req_special);
+
+        String currentUsername = UserSession.getInstance().getUsername();
+        if (currentUsername != null && !currentUsername.isEmpty() && editUsername != null) {
+            editUsername.setHint(currentUsername);
+        }
 
         editPassword.addTextChangedListener(new TextWatcher() {
             @Override
@@ -67,39 +76,54 @@ public class ProfileFragment extends Fragment {
             String editPWText = editPassword.getText().toString().trim();
             String editPWReenterText = editReenterPassword.getText().toString().trim();
 
-            if(editUserText.isEmpty() && editPWText.isEmpty() && editPWReenterText.isEmpty()) {
+            if (editUserText.isEmpty() && editPWText.isEmpty()) {
                 ToastUtils.showToast(getContext(), "No changes were made.");
-            } else if(!editPWText.isEmpty() && !isPwValid) {
-                ToastUtils.showToast(getContext(), "Please fulfill all password requirements.");
-            } else if(!editPWText.isEmpty() && editPWReenterText.isEmpty()) {
-                ToastUtils.showToast(getContext(), "Please re-enter your password.");
-            } else if(!editPWText.isEmpty() && !editPWReenterText.equals(editPWText)) {
-                ToastUtils.showToast(getContext(), "Passwords do not match.");
-            } else {
-                ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
-                if (getActivity() != null) {
-                    getActivity().onBackPressed();
+                return;
+            }
+
+            if (!editUserText.isEmpty()) {
+                ValidationResult userResult = UsernameValidator.validate(editUserText);
+                if (!userResult.isValid()) {
+                    ToastUtils.showToast(getContext(), userResult.getErrorMessage());
+                    return;
                 }
             }
+
+            if (!editPWText.isEmpty()) {
+                ValidationResult pwResult = PasswordValidator.validate(editPWText);
+                if (!pwResult.isValid()) {
+                    ToastUtils.showToast(getContext(), pwResult.getErrorMessage());
+                    return;
+                }
+                if (editPWReenterText.isEmpty()) {
+                    ToastUtils.showToast(getContext(), "Please re-enter your password.");
+                    return;
+                }
+                if (!editPWReenterText.equals(editPWText)) {
+                    ToastUtils.showToast(getContext(), "Passwords do not match.");
+                    return;
+                }
+            }
+
+            ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
+            if (getActivity() != null) {
+                getParentFragmentManager().popBackStack();
+            }
+
+            // TODO: actually update it in firebase
         });
 
         return view;
     }
 
     private void validatePassword(String password, TextView reqLength, TextView reqUppercase, TextView reqLowercase, TextView reqDigit, TextView reqSpecial) {
-        boolean hasLength = password.length() >= 8;
-        boolean hasUpper = password.matches(".*[A-Z].*");
-        boolean hasLower = password.matches(".*[a-z].*");
-        boolean hasDigit = password.matches(".*\\d.*");
-        boolean hasSpecial = password.matches(".*[!@#$%^&*()].*");
-        
-        updateRequirementUI(reqLength, hasLength);
-        updateRequirementUI(reqUppercase, hasUpper);
-        updateRequirementUI(reqLowercase, hasLower);
-        updateRequirementUI(reqDigit, hasDigit);
-        updateRequirementUI(reqSpecial, hasSpecial);
+        updateRequirementUI(reqLength, PasswordValidator.hasMinLength(password));
+        updateRequirementUI(reqUppercase, PasswordValidator.hasUppercase(password));
+        updateRequirementUI(reqLowercase, PasswordValidator.hasLowercase(password));
+        updateRequirementUI(reqDigit, PasswordValidator.hasDigit(password));
+        updateRequirementUI(reqSpecial, PasswordValidator.hasSpecialChar(password));
 
-        isPwValid = hasLength && hasUpper && hasLower && hasDigit && hasSpecial;
+        isPwValid = PasswordValidator.validate(password).isValid();
     }
 
     private void updateRequirementUI(TextView textView, boolean isMet) {
