@@ -25,9 +25,6 @@ import com.professional.b07legendaryproject2026.utils.UsernameValidator;
 import com.professional.b07legendaryproject2026.utils.ValidationResult;
 
 public class ProfileFragment extends Fragment {
-
-    private boolean isPwValid = false;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -38,6 +35,15 @@ public class ProfileFragment extends Fragment {
         EditText editPassword = view.findViewById(R.id.edit_password);
         EditText editReenterPassword = view.findViewById(R.id.edit_reenter_password);
         Button submitButton = view.findViewById(R.id.button_submit_profile);
+        Button cancelButton = view.findViewById(R.id.button_cancel_profile);
+
+        if (cancelButton != null) {
+            cancelButton.setOnClickListener(v -> {
+                if (getActivity() != null && isAdded()) {
+                    getParentFragmentManager().popBackStack();
+                }
+            });
+        }
 
         LinearLayout layoutRequirements = view.findViewById(R.id.layout_password_requirements);
         TextView reqLength = view.findViewById(R.id.req_length);
@@ -111,6 +117,7 @@ public class ProfileFragment extends Fragment {
             }
 
             submitButton.setEnabled(false);
+            cancelButton.setEnabled(false);
 
             Runnable onAllSuccess = () -> {
                 if (getContext() != null) {
@@ -140,6 +147,7 @@ public class ProfileFragment extends Fragment {
                     ToastUtils.showToast(getContext(), "Failed to save changes. Please try again.");
                 }
                 submitButton.setEnabled(true);
+                cancelButton.setEnabled(true);
             };
 
             if (hasUsernameChange && hasPasswordChange) {
@@ -162,8 +170,6 @@ public class ProfileFragment extends Fragment {
         updateRequirementUI(reqLowercase, PasswordValidator.hasLowercase(password));
         updateRequirementUI(reqDigit, PasswordValidator.hasDigit(password));
         updateRequirementUI(reqSpecial, PasswordValidator.hasSpecialChar(password));
-
-        isPwValid = PasswordValidator.validate(password).isValid();
     }
 
     private void updateRequirementUI(TextView textView, boolean isMet) {
