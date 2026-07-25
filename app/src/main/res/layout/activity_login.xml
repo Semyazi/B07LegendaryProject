@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id = "@+id/main"
+    android:gravity="center"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/loginTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="Login"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:hint="Email"
+        android:id="@+id/loginEmailInput"
+        android:inputType="textEmailAddress"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_width="match_parent"
+        android:minHeight = "48dp"
+        android:autofillHints = "emailAddress"/>
+
+    <EditText
+        android:hint="Password"
+        android:id="@+id/loginPasswordInput"
+        android:inputType="textPassword"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_width="match_parent"
+        android:minHeight = "48dp"
+        android:autofillHints = "password"/>
+
+    <Button
+        android:id = "@+id/loginButton"
+        android:layout_width = "match_parent"
+        android:layout_height = "wrap_content"
+        android:text = "Login"
+        android:layout_marginBottom = "12dp" />
+
+    <Button
+        android:id="@+id/createAccountButton"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Create Account" />
+
+</LinearLayout>

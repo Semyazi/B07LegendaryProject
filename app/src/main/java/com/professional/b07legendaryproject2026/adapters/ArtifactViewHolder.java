@@ -36,26 +36,10 @@ public class ArtifactViewHolder extends RecyclerView.ViewHolder {
         name.setText(artifact.getName());
         lotNumber.setText(artifact.getLotNumber());
         secondaryInfo.setText(artifact.getPeriodDescription());
-
-        img.setBackgroundResource(R.drawable.skeleton_placeholder);
-
         Glide.with(img.getContext())
                 .load(artifact.getImage())
-                .placeholder(R.drawable.skeleton_placeholder)
-                .error(R.drawable.skeleton_placeholder)
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, @NonNull Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                        // Remove background once image is ready to avoid overlapping
-                        img.setBackground(null);
-                        return false;
-                    }
-                })
+                .placeholder(R.drawable.artifact_image_placeholder)
+                .error(R.drawable.artifact_image_placeholder)
                 .centerCrop()
                 .into(img);
         itemView.setOnClickListener(v -> listener.onArtifactClick(artifact));

@@ -8,12 +8,12 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import android.util.Log;
+
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+
     FirebaseDatabase db;
 
     @Override
@@ -22,64 +22,30 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         db = FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/");
-        // loadAnon(savedInstanceState);
-        loadAdmin(savedInstanceState);
-        
-    }
 
-    private void loadAnon(Bundle savedInstanceState){
-        // fake auth login for now
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.signOut();
-        if (auth.getCurrentUser() == null) {
-            auth.signInAnonymously()
-                .addOnSuccessListener(authResult -> {
-                    Log.d(TAG, "Anonymous authentication successful");
-                    if (savedInstanceState == null) {
-                        loadFragment(new HomeFragment(), false);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Anonymous authentication failed", e);
-                });
-        } else {
-            if (savedInstanceState == null) {
-                loadFragment(new HomeFragment(), false);
-            }
+        if (savedInstanceState == null) {
+            authenticateAndLoadHome();
         }
     }
 
-    private void loadAdmin(Bundle savedInstanceState){
+    private void authenticateAndLoadHome() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.signOut();
-        Log.d(TAG, "Signed out existing session before admin test login");
-
-        auth.signInWithEmailAndPassword("mysticalboom11@gmail.com", "123456")
-            .addOnSuccessListener(authResult -> {
-                logCurrentUserState(auth, "Admin login success");
-                if (savedInstanceState == null) {
-                    loadFragment(new HomeFragment(), false);
-                }
-            })
-            .addOnFailureListener(e -> {
-                Log.e(TAG, "Admin login failed", e);
-            });
-    }
-
-    private void logCurrentUserState(FirebaseAuth auth, String label) {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) {
-            Log.d(TAG, label + " | currentUser=null");
+        if (auth.getCurrentUser() != null) {
+            loadFragment(new HomeFragment(), false);
             return;
         }
 
-        Log.d(TAG, label
-            + " | uid=" + user.getUid()
-            + " | email=" + user.getEmail()
-            + " | isAnonymous=" + user.isAnonymous());
+        // Artifact reads require auth != null in the supplied Realtime Database rules.
+        // Existing signed-in users are kept; anonymous auth is only the guest fallback.
+        auth.signInAnonymously().addOnCompleteListener(this, task -> {
+            if (!task.isSuccessful()) {
+                Toast.makeText(this,
+                        "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
+                        Toast.LENGTH_LONG).show();
+            }
+            loadFragment(new HomeFragment(), false);
+        });
     }
-
-
 
     public void loadFragment(Fragment fragment, boolean addToBackStack) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -99,3 +65,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+

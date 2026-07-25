@@ -30,11 +30,6 @@ import com.professional.b07legendaryproject2026.managers.PaginationManager;
 import com.professional.b07legendaryproject2026.managers.SearchManager;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +38,7 @@ public class HomeFragment extends Fragment {
     private static final String KEY_ITEMS_PER_PAGE = "items_per_page";
     private ArtifactAdapter artifactAdapter;
     private final List<Artifact> allArtifacts = new ArrayList<>();
+    private final List<Artifact> filteredArtifacts = new ArrayList<>();
     private final ArtifactRepository repository = new ArtifactRepository();
     private Spinner itemsPerPageSpinner;
     private PaginationManager paginationManager;
@@ -56,19 +52,29 @@ public class HomeFragment extends Fragment {
 
         setupSearch(view);
         setupNavigationButtons(view);
-        showAdminButtonIfAdmin(view);
         setupRecyclerView(view);
         setupPagination(view);
         setupItemsPerPageSpinner(view);
 
-        loadInitialData();
+        loadArtifacts();
 
         return view;
     }
 
     private void setupSearch(View view) {
         SearchView searchView = view.findViewById(R.id.search_view_home);
-        searchManager = new SearchManager(searchView, query -> ToastUtils.showToast(getContext(), query));
+        searchManager = new SearchManager(searchView, new SearchManager.SearchCallback() {
+            @Override
+            public void onSearchSubmitted(String query) {
+                performSearch(query);
+                searchView.clearFocus();
+            }
+
+            @Override
+            public void onSearchTextChanged(String newText) {
+                performSearch(newText);
+            }
+        });
     }
 
     private void setupNavigationButtons(View view) {
@@ -80,22 +86,8 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
-
-        View logoutButton = view.findViewById(R.id.button_logout);
-        if (logoutButton != null) {
-            logoutButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "You have successfully logged out."));
-        }
-
-        View collectionsButton = view.findViewById(R.id.button_collections);
-        if (collectionsButton != null) {
-            collectionsButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Viewing user collections."));
-        }
-    }
-
-    private void checkAdmin(){
-
-    }
-    private void showAdminButtonIfAdmin(View view){
+      
+      private void showAdminButtonIfAdmin(View view){
         View addButton = view.findViewById(R.id.button_add);
         if (addButton == null) return;
         addButton.setVisibility(View.GONE);
@@ -119,6 +111,17 @@ public class HomeFragment extends Fragment {
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
         
+    }
+
+        View logoutButton = view.findViewById(R.id.button_logout);
+        if (logoutButton != null) {
+            logoutButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "You have successfully logged out."));
+        }
+
+        View collectionsButton = view.findViewById(R.id.button_collections);
+        if (collectionsButton != null) {
+            collectionsButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Viewing user collections."));
+        }
     }
 
     private void setupRecyclerView(View view) {
@@ -169,22 +172,35 @@ public class HomeFragment extends Fragment {
         loadItemsPerPagePreference();
     }
 
-    private void loadInitialData() {
-        allArtifacts.clear();
-        repository.getArtifacts(getContext(), new ArtifactRepository.RepositoryCallback() {
+    private void loadArtifacts() {
+        repository.observeArtifacts(new ArtifactRepository.ArtifactsCallback() {
             @Override
-            public void onDataLoaded(List<Artifact> artifacts) {
-                if (isAdded()) {
-                    allArtifacts.addAll(artifacts);
-                    updateDisplayedArtifacts();
-                }
+            public void onArtifactsLoaded(List<Artifact> artifacts) {
+                if (!isAdded()) return;
+
+                allArtifacts.clear();
+                allArtifacts.addAll(artifacts);
+
+                filteredArtifacts.clear();
+                filteredArtifacts.addAll(artifacts);
+
+                paginationManager.setCurrentPage(1);
+                updateDisplayedArtifacts();
             }
 
             @Override
             public void onError(String message) {
-
+                if (!isAdded()) return;
+                ToastUtils.showToast(getContext(), "Could not load artifacts: " + message);
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        repository.stopObserving();
+        recyclerView = null;
+        super.onDestroyView();
     }
 
     private void updateDisplayedArtifacts() {
@@ -192,12 +208,12 @@ public class HomeFragment extends Fragment {
 
         int itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
 
-        paginationManager.update(allArtifacts.size(), itemsPerPage);
+        paginationManager.update(filteredArtifacts.size(), itemsPerPage);
 
         int start = (paginationManager.getCurrentPage() - 1) * itemsPerPage;
-        int end = Math.min(start + itemsPerPage, allArtifacts.size());
+        int end = Math.min(start + itemsPerPage, filteredArtifacts.size());
 
-        List<Artifact> limitedList = allArtifacts.subList(start, end);
+        List<Artifact> limitedList = filteredArtifacts.subList(start, end);
         artifactAdapter.submitList(new ArrayList<>(limitedList));
     }
 
@@ -225,5 +241,22 @@ public class HomeFragment extends Fragment {
         if(recyclerView == null)
             return;
         recyclerView.scrollToPosition(0);
+    }
+
+    private void performSearch(String query) {
+        filteredArtifacts.clear();
+
+        if (query == null || query.trim().isEmpty()) {
+            filteredArtifacts.addAll(allArtifacts);
+        } else {
+            for (Artifact artifact : allArtifacts) {
+                if (artifact.matchesQuery(query)) {
+                    filteredArtifacts.add(artifact);
+                }
+            }
+        }
+
+        paginationManager.setCurrentPage(1);
+        updateDisplayedArtifacts();
     }
 }
