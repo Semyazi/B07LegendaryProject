@@ -131,7 +131,23 @@ public class HomeFragment extends Fragment {
     private void setupRecyclerView(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_artifacts);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        artifactAdapter = new ArtifactAdapter(a -> ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName()));
+
+        artifactAdapter = new ArtifactAdapter(a -> {
+            if (getActivity() == null) {
+                return;
+            }
+
+            ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName());
+
+            Bundle args = new Bundle();
+            args.putSerializable("clicked-artifact", a);
+            DetailedArtifactFragment detailedArtifact = new DetailedArtifactFragment();
+            detailedArtifact.setArguments(args);
+
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(detailedArtifact, true);
+            }
+        });
         recyclerView.setAdapter(artifactAdapter);
     }
 
