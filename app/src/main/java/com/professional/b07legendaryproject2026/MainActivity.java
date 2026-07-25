@@ -16,22 +16,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         UserSession.getInstance().loadFromDisk(this);
 
-        if (savedInstanceState == null) {
-            checkAuthAndInit();
-        }
-    }
-
-    private void checkAuthAndInit() {
         if (!UserSession.getInstance().isLoggedIn()) {
             redirectToLogin();
             return;
         }
 
-        loadFragment(new HomeFragment(), false);
+        setContentView(R.layout.activity_main);
+
+        if (savedInstanceState == null) {
+            loadFragment(new HomeFragment(), false);
+        }
     }
 
     private void redirectToLogin() {
