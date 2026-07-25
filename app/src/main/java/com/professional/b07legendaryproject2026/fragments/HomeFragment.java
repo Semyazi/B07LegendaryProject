@@ -136,8 +136,8 @@ public class HomeFragment extends Fragment {
             if (getActivity() == null) {
                 return;
             }
-
-            ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName());
+            // placeholder detailed artifact page
+            //ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName());
 
             Bundle args = new Bundle();
             args.putSerializable("clicked-artifact", a);
