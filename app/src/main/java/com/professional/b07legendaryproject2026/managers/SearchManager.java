@@ -60,4 +60,10 @@ public class SearchManager {
             });
         }
     }
+
+    public void setQuery(String query, boolean submit) {
+        if (searchView != null) {
+            searchView.setQuery(query, submit);
+        }
+    }
 }
