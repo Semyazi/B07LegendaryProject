@@ -32,9 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void authenticateAndLoadHome() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-
-        loginAdmin(auth);
-
         if (auth.getCurrentUser() != null) {
             loadFragment(new HomeFragment(), false);
             return;
@@ -42,14 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Artifact reads require auth != null in the supplied Realtime Database rules.
         // Existing signed-in users are kept; anonymous auth is only the guest fallback.
-        loginAnon(auth);
-    }
-
-
-
-    //temp functions
-    private void loginAnon(FirebaseAuth auth){
-                auth.signInAnonymously().addOnCompleteListener(this, task -> {
+        auth.signInAnonymously().addOnCompleteListener(this, task -> {
             if (!task.isSuccessful()) {
                 Toast.makeText(this,
                         "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
@@ -59,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+
+    //temp functions
+
     private void loginAdmin(FirebaseAuth auth){
         UserSession.getInstance().clearSession(this);
         auth.signInWithEmailAndPassword("mysticalboom11@gmail.com", "123456").addOnCompleteListener(this, task -> {
@@ -66,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this,
                         "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
                         Toast.LENGTH_LONG).show();
-                loginAnon(auth);
                 return;
             }
             UserSession.getInstance().setSession("TempAdmin", true, this);
