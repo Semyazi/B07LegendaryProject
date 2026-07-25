@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
+import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        UserSession.getInstance().loadFromDisk(this);
 
         db = FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/");
 
@@ -30,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void authenticateAndLoadHome() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        loginAdmin(auth);
+
         if (auth.getCurrentUser() != null) {
             loadFragment(new HomeFragment(), false);
             return;
@@ -37,12 +42,34 @@ public class MainActivity extends AppCompatActivity {
 
         // Artifact reads require auth != null in the supplied Realtime Database rules.
         // Existing signed-in users are kept; anonymous auth is only the guest fallback.
-        auth.signInAnonymously().addOnCompleteListener(this, task -> {
+        loginAnon(auth);
+    }
+
+
+
+    //temp functions
+    private void loginAnon(FirebaseAuth auth){
+                auth.signInAnonymously().addOnCompleteListener(this, task -> {
             if (!task.isSuccessful()) {
                 Toast.makeText(this,
                         "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
                         Toast.LENGTH_LONG).show();
             }
+            loadFragment(new HomeFragment(), false);
+        });
+    }
+
+    private void loginAdmin(FirebaseAuth auth){
+        UserSession.getInstance().clearSession(this);
+        auth.signInWithEmailAndPassword("mysticalboom11@gmail.com", "123456").addOnCompleteListener(this, task -> {
+            if (!task.isSuccessful()) {
+                Toast.makeText(this,
+                        "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
+                        Toast.LENGTH_LONG).show();
+                loginAnon(auth);
+                return;
+            }
+            UserSession.getInstance().setSession("TempAdmin", true, this);
             loadFragment(new HomeFragment(), false);
         });
     }

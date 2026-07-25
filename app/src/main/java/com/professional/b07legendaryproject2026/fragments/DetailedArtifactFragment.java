@@ -15,6 +15,7 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.adapters.ArtifactViewHolder;
 import com.professional.b07legendaryproject2026.data.Artifact;
+import com.professional.b07legendaryproject2026.managers.UserSession;
 
 public class DetailedArtifactFragment extends Fragment {
 
@@ -84,8 +85,22 @@ public class DetailedArtifactFragment extends Fragment {
             TextView accessionNum = view.findViewById(R.id.text_artifact_accession_num);
             accessionNum.setText(artifact.getAccessionNumber());
         }
+
+        showAdminButtonIfAdmin(view);
+
         return view;
     }
+
+    private void showAdminButtonIfAdmin(View view){
+        View editButton = view.findViewById(R.id.button_edit);
+        if (editButton == null) return;
+        editButton.setVisibility(View.GONE);
+
+        if(UserSession.getInstance().isAdmin())
+            editButton.setVisibility(View.VISIBLE);
+    }
+
+    
 }
 
 

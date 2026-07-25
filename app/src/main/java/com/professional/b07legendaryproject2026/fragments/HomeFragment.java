@@ -28,11 +28,7 @@ import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 import com.professional.b07legendaryproject2026.managers.PaginationManager;
 import com.professional.b07legendaryproject2026.managers.SearchManager;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.professional.b07legendaryproject2026.managers.UserSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,29 +99,13 @@ public class HomeFragment extends Fragment {
         }
     }
 
-          private void showAdminButtonIfAdmin(View view){
+    private void showAdminButtonIfAdmin(View view){
         View addButton = view.findViewById(R.id.button_add);
         if (addButton == null) return;
         addButton.setVisibility(View.GONE);
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() == null) return;
-
-        String uid = auth.getCurrentUser().getUid();
-        FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/")
-        .getReference("users")
-        .child(uid)
-        .child("admin")
-        .addListenerForSingleValueEvent(new ValueEventListener() {
-        @Override
-        public void onDataChange(@NonNull DataSnapshot snapshot) {
-            Boolean isAdmin = snapshot.getValue(Boolean.class);
-            if (Boolean.TRUE.equals(isAdmin)) {
-                addButton.setVisibility(View.VISIBLE);
-            }
-        }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
+        if(UserSession.getInstance().isAdmin())
+            addButton.setVisibility(View.VISIBLE);
     }
 
     private void setupRecyclerView(View view) {
