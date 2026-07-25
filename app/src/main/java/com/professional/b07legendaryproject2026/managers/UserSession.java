@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
 public class UserSession {
     private static UserSession instance;
@@ -150,5 +151,51 @@ public class UserSession {
     public String getUid() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         return (currentUser != null) ? currentUser.getUid() : null;
+    }
+
+    // Updates username in Realtime DB + SharedPreferences
+    public void updateUsername(Context context, String newUsername, Runnable onSuccess, Runnable onFailure) {
+        String uid = getUid();
+        if (uid == null) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        FirebaseDatabase.getInstance().getReference("users").child(uid).child("username")
+                .setValue(newUsername)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        setSession(newUsername, this.isAdmin, context);
+                        if (onSuccess != null) onSuccess.run();
+                    } else {
+                        if (onFailure != null) onFailure.run();
+                    }
+                });
+
+
+    }
+
+    // Updates password in Firebase Auth
+    public void updatePassword(Context context, String newPassword, Runnable onSuccess, Runnable onReauthRequired, Runnable onFailure) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        user.updatePassword(newPassword).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (onSuccess != null) onSuccess.run();
+            } else {
+                Exception e = task.getException();
+                if (e instanceof com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException) {
+                    // Stale session: clear local session
+                    clearSession(context);
+                    if (onReauthRequired != null) onReauthRequired.run();
+                } else {
+                    if (onFailure != null) onFailure.run();
+                }
+            }
+        });
     }
 }

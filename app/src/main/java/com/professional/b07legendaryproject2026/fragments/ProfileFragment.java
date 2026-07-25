@@ -14,7 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import android.content.Intent;
 
+import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.PasswordValidator;
@@ -57,7 +59,7 @@ public class ProfileFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String password = s.toString();
                 int visibility = (!password.isEmpty()) ? View.VISIBLE : View.GONE;
-                
+
                 if (textReenterPasswordLabel != null) textReenterPasswordLabel.setVisibility(visibility);
                 if (editReenterPassword != null) editReenterPassword.setVisibility(visibility);
                 if (layoutRequirements != null) layoutRequirements.setVisibility(visibility);
@@ -76,12 +78,15 @@ public class ProfileFragment extends Fragment {
             String editPWText = editPassword.getText().toString().trim();
             String editPWReenterText = editReenterPassword.getText().toString().trim();
 
-            if (editUserText.isEmpty() && editPWText.isEmpty()) {
+            boolean hasUsernameChange = !editUserText.isEmpty() && !editUserText.equals(currentUsername);
+            boolean hasPasswordChange = !editPWText.isEmpty();
+
+            if (!hasUsernameChange && !hasPasswordChange) {
                 ToastUtils.showToast(getContext(), "No changes were made.");
                 return;
             }
 
-            if (!editUserText.isEmpty()) {
+            if (hasUsernameChange) {
                 ValidationResult userResult = UsernameValidator.validate(editUserText);
                 if (!userResult.isValid()) {
                     ToastUtils.showToast(getContext(), userResult.getErrorMessage());
@@ -89,7 +94,7 @@ public class ProfileFragment extends Fragment {
                 }
             }
 
-            if (!editPWText.isEmpty()) {
+            if (hasPasswordChange) {
                 ValidationResult pwResult = PasswordValidator.validate(editPWText);
                 if (!pwResult.isValid()) {
                     ToastUtils.showToast(getContext(), pwResult.getErrorMessage());
@@ -105,12 +110,47 @@ public class ProfileFragment extends Fragment {
                 }
             }
 
-            ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
-            if (getActivity() != null) {
-                getParentFragmentManager().popBackStack();
-            }
+            submitButton.setEnabled(false);
 
-            // TODO: actually update it in firebase
+            Runnable onAllSuccess = () -> {
+                if (getContext() != null) {
+                    ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
+                }
+                if (getActivity() != null && isAdded()) {
+                    getParentFragmentManager().popBackStack();
+                }
+            };
+
+            Runnable onReauthRequired = () -> {
+                if (getContext() != null) {
+                    ToastUtils.showToast(getContext(), "Session expired. Please log back in with your current password.");
+                }
+
+                Intent intent = new Intent(requireContext(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
+                if (getActivity() != null) {
+                    getActivity().finish();
+                }
+            };
+
+            Runnable onFailure = () -> {
+                if (getContext() != null) {
+                    ToastUtils.showToast(getContext(), "Failed to save changes. Please try again.");
+                }
+                submitButton.setEnabled(true);
+            };
+
+            if (hasUsernameChange && hasPasswordChange) {
+                UserSession.getInstance().updateUsername(requireContext(), editUserText, () -> {
+                    UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, onReauthRequired, onFailure);
+                }, onFailure);
+            } else if (hasUsernameChange) {
+                UserSession.getInstance().updateUsername(requireContext(), editUserText, onAllSuccess, onFailure);
+            } else {
+                UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, onReauthRequired, onFailure);
+            }
         });
 
         return view;
