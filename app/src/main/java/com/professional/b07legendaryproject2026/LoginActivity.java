@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.professional.b07legendaryproject2026.auth.FirebaseAuthModel;
 import com.professional.b07legendaryproject2026.auth.LoginContract;
 import com.professional.b07legendaryproject2026.auth.LoginPresenter;
 
@@ -28,7 +29,7 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         loginButton = findViewById(R.id.loginButton);
         createAccountButton = findViewById(R.id.createAccountButton);
 
-        presenter = new LoginPresenter(this, new TemporaryLoginModel());
+        presenter = new LoginPresenter(this, new FirebaseAuthModel(this));
 
         loginButton.setOnClickListener(v -> {
             String email = emailInput.getText().toString();
@@ -48,13 +49,14 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
 
     @Override
     public void showPasswordError(String message){
-        emailInput.setError(message);
+        passwordInput.setError(message);
     }
 
     @Override
     public void showLoginSuccess(){
         Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
@@ -62,12 +64,5 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
     @Override
     public void showLoginFailure(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private static class TemporaryLoginModel implements LoginContract.Model{
-        @Override
-        public void login(String email, String password, LoginContract.LoginCallback callback){
-            callback.onSuccess();
-        }
     }
 }

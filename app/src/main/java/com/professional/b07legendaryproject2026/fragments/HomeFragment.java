@@ -2,6 +2,7 @@ package com.professional.b07legendaryproject2026.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,8 +19,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.MainActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.adapters.ArtifactAdapter;
@@ -27,8 +30,8 @@ import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 import com.professional.b07legendaryproject2026.managers.PaginationManager;
 import com.professional.b07legendaryproject2026.managers.SearchManager;
-import com.professional.b07legendaryproject2026.utils.ToastUtils;
 import com.professional.b07legendaryproject2026.managers.UserSession;
+import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +93,24 @@ public class HomeFragment extends Fragment {
 
         View logoutButton = view.findViewById(R.id.button_logout);
         if (logoutButton != null) {
-            logoutButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "You have successfully logged out."));
+            logoutButton.setOnClickListener(v -> {
+                Context context = getContext();
+                if (context == null) return;
+
+                repository.stopObserving();
+
+                UserSession.getInstance().clearSession(context);
+
+                ToastUtils.showToast(context, "You have successfully logged out.");
+
+                // Redirect to LoginActivity and wipe the backstack
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
+                // Close
+                if (getActivity() != null) getActivity().finish();
+            });
         }
 
         View collectionsButton = view.findViewById(R.id.button_collections);

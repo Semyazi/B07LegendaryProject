@@ -30,29 +30,36 @@ public class SignupPresenterTest {
 
     @Test
     public void signup_emptyEmail_showsEmailError() {
-        presenter.signup("", "testuser", "password123", "password123");
-        verify(view).showEmailError("Email cannot be empty");
+        presenter.signup("", "testuser", "Password123!", "Password123!");
+        verify(view).showEmailError("Email cannot be empty.");
+        verify(model, never()).signup(any(), any(), any(), any());
+    }
+
+    @Test
+    public void signup_invalidEmail_showsEmailError() {
+        presenter.signup("bad-email", "testuser", "Password123!", "Password123!");
+        verify(view).showEmailError("Invalid email format (e.g., name@example.com).");
         verify(model, never()).signup(any(), any(), any(), any());
     }
 
     @Test
     public void signup_emptyUsername_showsUsernameError(){
         presenter.signup("test@example.com", "", "Password123!", "Password123!");
-        verify(view).showUsernameError("Username cannot be empty");
+        verify(view).showUsernameError("Username cannot be empty.");
         verify(model, never()).signup(any(), any(), any(), any());
     }
 
     @Test
     public void signup_emptyPassword_showsPasswordError(){
         presenter.signup("test@example.com", "testuser", "", "password123");
-        verify(view).showPasswordError("Password cannot be empty");
+        verify(view).showPasswordError("Password cannot be empty.");
         verify(model, never()).signup(any(),any(), any(), any());
     }
 
     @Test
     public void signup_emptyConfirmPassword_showsConfirmPasswordError(){
-        presenter.signup("test@example.com","testuser", "password123", "");
-        verify(view).showConfirmPasswordError("Confirm password cannot be empty");
+        presenter.signup("test@example.com","testuser", "Password123!", "");
+        verify(view).showConfirmPasswordError("Confirm password cannot be empty.");
         verify(model, never()).signup(any(), any(),any(), any());
     }
 
@@ -64,10 +71,37 @@ public class SignupPresenterTest {
     }
 
     @Test
-    public void signup_weakPassword_showsPasswordError() {
-        presenter.signup("test@example.com","testuser", "password123", "password123");
+    public void signup_shortPassword_showsPasswordError() {
+        presenter.signup("test@example.com","testuser", "Pass1!", "Pass1!");
+        verify(view).showPasswordError("Password must be at least 8 characters long.");
+        verify(model, never()).signup(any(),any(), any(), any());
+    }
 
-        verify(view).showPasswordError("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+    @Test
+    public void signup_noUppercasePassword_showsPasswordError() {
+        presenter.signup("test@example.com","testuser", "password123!", "password123!");
+        verify(view).showPasswordError("Password must contain at least one uppercase letter.");
+        verify(model, never()).signup(any(),any(), any(), any());
+    }
+
+    @Test
+    public void signup_noLowercasePassword_showsPasswordError() {
+        presenter.signup("test@example.com","testuser", "PASSWORD123!", "PASSWORD123!");
+        verify(view).showPasswordError("Password must contain at least one lowercase letter.");
+        verify(model, never()).signup(any(),any(), any(), any());
+    }
+
+    @Test
+    public void signup_noDigitPassword_showsPasswordError() {
+        presenter.signup("test@example.com","testuser", "Password!!!!!", "Password!!!!!");
+        verify(view).showPasswordError("Password must contain at least one number.");
+        verify(model, never()).signup(any(),any(), any(), any());
+    }
+
+    @Test
+    public void signup_noSpecialCharPassword_showsPasswordError() {
+        presenter.signup("test@example.com","testuser", "Password12345", "Password12345");
+        verify(view).showPasswordError("Password must contain a special character.");
         verify(model, never()).signup(any(),any(), any(), any());
     }
 

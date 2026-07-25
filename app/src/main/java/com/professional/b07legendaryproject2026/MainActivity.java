@@ -1,5 +1,6 @@
 package com.professional.b07legendaryproject2026;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,63 +9,34 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
 import com.professional.b07legendaryproject2026.managers.UserSession;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-
-    FirebaseDatabase db;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
         UserSession.getInstance().loadFromDisk(this);
 
-        db = FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/");
-
-        if (savedInstanceState == null) {
-            authenticateAndLoadHome();
-        }
-    }
-
-    private void authenticateAndLoadHome() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            loadFragment(new HomeFragment(), false);
+        if (!UserSession.getInstance().isLoggedIn()) {
+            redirectToLogin();
             return;
         }
 
-        // Artifact reads require auth != null in the supplied Realtime Database rules.
-        // Existing signed-in users are kept; anonymous auth is only the guest fallback.
-        auth.signInAnonymously().addOnCompleteListener(this, task -> {
-            if (!task.isSuccessful()) {
-                Toast.makeText(this,
-                        "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
-                        Toast.LENGTH_LONG).show();
-            }
+        setContentView(R.layout.activity_main);
+
+        if (savedInstanceState == null) {
             loadFragment(new HomeFragment(), false);
-        });
+        }
     }
 
-
-
-    //temp functions
-
-    private void loginAdmin(FirebaseAuth auth){
-        UserSession.getInstance().clearSession(this);
-        auth.signInWithEmailAndPassword("mysticalboom11@gmail.com", "123456").addOnCompleteListener(this, task -> {
-            if (!task.isSuccessful()) {
-                Toast.makeText(this,
-                        "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
-            UserSession.getInstance().setSession("TempAdmin", true, this);
-            loadFragment(new HomeFragment(), false);
-        });
+    private void redirectToLogin() {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        // Clear the backstack so hitting "Back" from Login won't return to MainActivity
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     public void loadFragment(Fragment fragment, boolean addToBackStack) {
@@ -85,4 +57,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-
