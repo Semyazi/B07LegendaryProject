@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,8 +24,27 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseDatabase.getInstance("https://b07legendaryproject-default-rtdb.firebaseio.com/");
 
         if (savedInstanceState == null) {
-            loadFragment(new HomeFragment(), false);
+            authenticateAndLoadHome();
         }
+    }
+
+    private void authenticateAndLoadHome() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            loadFragment(new HomeFragment(), false);
+            return;
+        }
+
+        // Artifact reads require auth != null in the supplied Realtime Database rules.
+        // Existing signed-in users are kept; anonymous auth is only the guest fallback.
+        auth.signInAnonymously().addOnCompleteListener(this, task -> {
+            if (!task.isSuccessful()) {
+                Toast.makeText(this,
+                        "Firebase authentication failed. Enable Anonymous sign-in in Firebase Authentication.",
+                        Toast.LENGTH_LONG).show();
+            }
+            loadFragment(new HomeFragment(), false);
+        });
     }
 
     public void loadFragment(Fragment fragment, boolean addToBackStack) {
@@ -43,3 +65,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+

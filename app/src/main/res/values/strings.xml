@@ -5,6 +5,7 @@
     <string name="my_collections">My Collections</string>
     <string name="profile">Profile</string>
     <string name="logout">Logout</string>
+    <string name="add">+</string>
     <string name="no_artifacts_found">No artifacts found.</string>
     <string name="previous_page">Previous</string>
     <string name="page_placeholder">1</string>
@@ -19,5 +20,5 @@
     <!-- Supabase values -->
     <string name="supabase_url">https://mnwigvrikfcelubzjxmo.supabase.co</string>
     <string name="supabase_anon_key">sb_publishable_oxk7NLhfmoitITvSMjtH7A_IXmBk8kN</string>
-    <string name="supabase_image_bucket">artifact-images</string>
+    <string name="supabase_image_bucket">artifact_images</string>
 </resources>
