@@ -47,6 +47,7 @@ public class HomeFragment extends Fragment {
     private PaginationManager paginationManager;
     private SearchManager searchManager;
     private RecyclerView recyclerView;
+    private String currentQuery = "";
 
     @Nullable
     @Override
@@ -70,15 +71,21 @@ public class HomeFragment extends Fragment {
         searchManager = new SearchManager(searchView, new SearchManager.SearchCallback() {
             @Override
             public void onSearchSubmitted(String query) {
+                currentQuery = query;
                 performSearch(query);
                 searchView.clearFocus();
             }
 
             @Override
             public void onSearchTextChanged(String newText) {
+                currentQuery = newText;
                 performSearch(newText);
             }
         });
+
+        if (currentQuery != null && !currentQuery.isEmpty()) {
+            searchManager.setQuery(currentQuery, false);
+        }
     }
 
     private void setupNavigationButtons(View view) {
@@ -201,11 +208,7 @@ public class HomeFragment extends Fragment {
                 allArtifacts.clear();
                 allArtifacts.addAll(artifacts);
 
-                filteredArtifacts.clear();
-                filteredArtifacts.addAll(artifacts);
-
-                paginationManager.setCurrentPage(1);
-                updateDisplayedArtifacts();
+                performSearch(currentQuery);
             }
 
             @Override
