@@ -98,6 +98,15 @@ public class HomeFragment extends Fragment {
             });
         }
 
+        View addButton = view.findViewById(R.id.button_add);
+        if (addButton != null) {
+            addButton.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).loadFragment(new AddArtifactFragment(), true);
+                }
+            });
+        }
+
         View logoutButton = view.findViewById(R.id.button_logout);
         if (logoutButton != null) {
             logoutButton.setOnClickListener(v -> {
