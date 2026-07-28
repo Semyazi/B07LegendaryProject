@@ -16,6 +16,10 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.content.Intent;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.AuthCredential;
+
 import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.managers.UserSession;
@@ -31,6 +35,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         TextView textReenterPasswordLabel = view.findViewById(R.id.reenter_password_label);
+        EditText confirmCurrentPassword = view.findViewById(R.id.confirm_current_password);
         EditText editUsername = view.findViewById(R.id.edit_username);
         EditText editPassword = view.findViewById(R.id.edit_password);
         EditText editReenterPassword = view.findViewById(R.id.edit_reenter_password);
@@ -80,12 +85,15 @@ public class ProfileFragment extends Fragment {
         });
 
         submitButton.setOnClickListener(v -> {
+            String confirmCurrentPasswordText = confirmCurrentPassword.getText().toString().trim();
             String editUserText = editUsername.getText().toString().trim();
             String editPWText = editPassword.getText().toString().trim();
             String editPWReenterText = editReenterPassword.getText().toString().trim();
 
             boolean hasUsernameChange = !editUserText.isEmpty() && !editUserText.equals(currentUsername);
             boolean hasPasswordChange = !editPWText.isEmpty();
+
+            confirmCurrentPassword( confirmCurrentPasswordText, () -> {
 
             if (!hasUsernameChange && !hasPasswordChange) {
                 ToastUtils.showToast(getContext(), "No changes were made.");
@@ -159,6 +167,11 @@ public class ProfileFragment extends Fragment {
             } else {
                 UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, onReauthRequired, onFailure);
             }
+            }, () -> {
+                ToastUtils.showToast(getContext(), "Current password is incorrect.");
+            });
+
+            
         });
 
         return view;
@@ -172,9 +185,35 @@ public class ProfileFragment extends Fragment {
         updateRequirementUI(reqSpecial, PasswordValidator.hasSpecialChar(password));
     }
 
+    private void confirmCurrentPassword(String password, Runnable onSuccess, Runnable onFailure){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null){
+            onFailure.run();
+            return;
+        }
+
+        String email = user.getEmail();
+        if (email == null || email.isEmpty()){
+            onFailure.run();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        user.reauthenticate(credential)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    onSuccess.run();
+                } else {
+                    onFailure.run();
+                }
+            });
+    }
+
     private void updateRequirementUI(TextView textView, boolean isMet) {
         if (textView == null || getContext() == null) return;
         int color = ContextCompat.getColor(getContext(), isMet ? R.color.success_green : R.color.imperial_red);
         textView.setTextColor(color);
+
     }
 }
