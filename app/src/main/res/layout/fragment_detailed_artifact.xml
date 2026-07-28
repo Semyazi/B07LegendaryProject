@@ -1,171 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.DetailedArtifactFragment">
+    android:background="@color/primary_background">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/image_artifact_thumbnail"
-            android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/RoundedCornersImage"
-            android:contentDescription="Artifact image" />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="24dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/card_surface">
+
+                <ImageView
+                    android:id="@+id/image_artifact_thumbnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:minHeight="250dp"
+                    android:contentDescription="Artifact image"
+                    tools:src="@drawable/skeleton_placeholder" />
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:id="@+id/text_artifact_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="2"
+                android:layout_marginTop="24dp"
                 android:textColor="@color/text_primary"
-                android:textSize="14sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                tools:text="Artifact Name Example" />
+                tools:text="Ceramic Vase with Dragon Pattern" />
 
             <TextView
                 android:id="@+id/text_artifact_lot_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textColor="@color/taam_gold"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 tools:text="TAAM-025" />
 
-            <TextView
-                android:id="@+id/text_artifact_secondary_info"
+            <!-- Actions -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Qing Dynasty" />
+                android:orientation="horizontal"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/text_artifact_category"
+                <Button
+                    android:id="@+id/button_save_to_collection"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Save to Collection"
+                    android:textSize="11sp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    app:icon="@drawable/ic_bookmark"
+                    app:backgroundTint="@color/button_primary"
+                    android:textColor="@color/white" />
+
+                <Space
+                    android:id="@+id/admin_action_space"
+                    android:layout_width="4dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/button_edit"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.8"
+                    android:text="Edit"
+                    android:textSize="11sp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_edit"
+                    app:backgroundTint="@color/black"
+                    android:textColor="@color/white"
+                    tools:visibility="visible" />
+
+                <Space
+                    android:id="@+id/admin_action_space_2"
+                    android:layout_width="4dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/button_delete"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Delete"
+                    android:textSize="11sp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_delete"
+                    app:backgroundTint="@color/imperial_red"
+                    android:textColor="@color/white"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Ceramics" />
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="#33AAAAAA" />
 
-            <TextView
-                android:id="@+id/text_artifact_material"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Ceramic" />
-
-            <TextView
-                android:id="@+id/text_artifact_cultural_origin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Chinese" />
-
-            <TextView
-                android:id="@+id/text_artifact_dimensions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="5x5x5" />
-
-            <TextView
-                android:id="@+id/text_artifact_condition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Restored" />
-
-            <TextView
-                android:id="@+id/text_artifact_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Toronto" />
-
-            <TextView
-                android:id="@+id/text_artifact_acq_method"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Donation" />
-
-            <TextView
-                android:id="@+id/text_artifact_provenance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Private Collector" />
-
-            <TextView
-                android:id="@+id/text_artifact_accession_num"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="1" />
-
+            <!-- Details Sections -->
+            <TextView style="@style/TAAM_HeaderText" android:text="Description" android:layout_marginTop="24dp" />
             <TextView
                 android:id="@+id/text_artifact_description"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="15dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Description" />
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                tools:text="A beautiful example of Qing dynasty ceramic craft..." />
 
-            <TextView
-                android:id="@+id/text_artifact_notes"
+            <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="Notes" />
+                android:layout_marginTop="24dp"
+                android:columnCount="2"
+                android:alignmentMode="alignMargins">
+
+                <!-- Category -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:paddingEnd="8dp">
+                    <TextView style="@style/TAAM_HeaderText" android:text="Category" />
+                    <TextView android:id="@+id/text_artifact_category" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Ceramics" />
+                </LinearLayout>
+
+                <!-- Material -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:paddingStart="8dp">
+                    <TextView style="@style/TAAM_HeaderText" android:text="Material" />
+                    <TextView android:id="@+id/text_artifact_material" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Porcelain" />
+                </LinearLayout>
+
+                <!-- Dynasty -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:layout_marginTop="16dp" android:paddingEnd="8dp">
+                    <TextView style="@style/TAAM_HeaderText" android:text="Dynasty" />
+                    <TextView android:id="@+id/text_artifact_secondary_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Qing Dynasty" />
+                </LinearLayout>
+
+                <!-- Cultural Origin -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:orientation="vertical" android:layout_marginTop="16dp" android:paddingStart="8dp">
+                    <TextView style="@style/TAAM_HeaderText" android:text="Origin" />
+                    <TextView android:id="@+id/text_artifact_cultural_origin" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Jingdezhen, China" />
+                </LinearLayout>
+            </GridLayout>
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Dimensions" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_dimensions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="30cm x 15cm" />
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Condition" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_condition" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Excellent" />
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Location" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_location" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Main Gallery, Hall A" />
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Acquisition" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_acq_method" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Gift of Dr. Smith" />
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Provenance" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_provenance" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="Formerly in the Collection of..." />
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Accession Number" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_accession_num" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" tools:text="2023.01.05" />
+
+            <TextView style="@style/TAAM_HeaderText" android:text="Notes" android:layout_marginTop="16dp" />
+            <TextView android:id="@+id/text_artifact_notes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontStyle="italic" tools:text="Requires handle cleaning..." />
 
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <Button
-            android:id="@+id/button_edit"
-            android:layout_width="341dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/edit"
-            app:backgroundTint="@color/accent_action"/>
-            
-
-
-    </LinearLayout>
-
-
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
