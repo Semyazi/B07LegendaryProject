@@ -19,6 +19,7 @@ import android.content.Intent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 
 import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.R;
@@ -160,12 +161,12 @@ public class ProfileFragment extends Fragment {
 
             if (hasUsernameChange && hasPasswordChange) {
                 UserSession.getInstance().updateUsername(requireContext(), editUserText, () -> {
-                    UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, onReauthRequired, onFailure);
+                    UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
                 }, onFailure);
             } else if (hasUsernameChange) {
                 UserSession.getInstance().updateUsername(requireContext(), editUserText, onAllSuccess, onFailure);
             } else {
-                UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, onReauthRequired, onFailure);
+                UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
             }
             }, () -> {
                 ToastUtils.showToast(getContext(), "Current password is incorrect.");
@@ -188,7 +189,7 @@ public class ProfileFragment extends Fragment {
     private void confirmCurrentPassword(String password, Runnable onSuccess, Runnable onFailure){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user == null){
+        if (user == null|| password == null || password.isEmpty()){
             onFailure.run();
             return;
         }

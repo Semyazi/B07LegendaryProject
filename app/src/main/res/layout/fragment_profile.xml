@@ -35,7 +35,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@color/search_bar_background"
                 android:hint="Current Password"
-                android:inputType="textPersonName"
+                android:inputType="textPassword"
                 android:padding="12dp"
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary" />
