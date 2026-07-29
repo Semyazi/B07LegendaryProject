@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_background"
-    tools:context=".fragments.ProfileFragment">
+    android:background="@color/primary_background">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -19,68 +18,78 @@
             android:padding="24dp">
 
             <TextView
-                android:id="@+id/textView3"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Current Password"
+                android:text="Edit Profile"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp"/>
 
-            <EditText
-                android:id="@+id/confirm_current_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@color/search_bar_background"
-                android:hint="Current Password"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
+            <!-- Section: Profile Information -->
+            <TextView style="@style/TAAM_HeaderText" android:text="Profile Information" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Change Username"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:text="Username"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/edit_username"
+                style="@style/TAAM_EditText"
+                android:layout_marginTop="4dp"
+                android:autofillHints="username"
+                android:importantForAutofill="yes"
+                android:hint="Current Username"
+                android:inputType="textPersonName" />
+
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="DefaultUser"
-                android:inputType="textPersonName"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:background="@color/search_bar_background" />
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="#1A888888" />
+
+            <!-- Section: Security -->
+            <TextView style="@style/TAAM_HeaderText" android:text="Security" android:layout_marginTop="24dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Change Password"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:text="New Password"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/edit_password"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="New Password"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:background="@color/search_bar_background" />
+                android:layout_marginTop="4dp">
+
+                <EditText
+                    android:id="@+id/edit_password"
+                    style="@style/TAAM_EditText"
+                    android:autofillHints="newPassword"
+                    android:importantForAutofill="yes"
+                    android:hint="Leave blank to keep current"
+                    android:inputType="textPassword"
+                    android:paddingEnd="48dp" />
+
+                <ImageButton
+                    android:id="@+id/toggleNewPassword"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_visibility_off"
+                    app:tint="@color/text_secondary"
+                    android:contentDescription="Toggle Visibility" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/layout_password_requirements"
@@ -90,73 +99,103 @@
                 android:layout_marginTop="8dp"
                 android:visibility="gone">
 
-                <TextView
-                    android:id="@+id/req_length"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• At least 8 characters"
-                    android:textSize="12sp"
-                    android:textColor="@color/imperial_red" />
-
-                <TextView
-                    android:id="@+id/req_uppercase"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• One uppercase letter"
-                    android:textSize="12sp"
-                    android:textColor="@color/imperial_red" />
-
-                <TextView
-                    android:id="@+id/req_lowercase"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• One lowercase letter"
-                    android:textSize="12sp"
-                    android:textColor="@color/imperial_red" />
-
-                <TextView
-                    android:id="@+id/req_digit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• One digit"
-                    android:textSize="12sp"
-                    android:textColor="@color/imperial_red" />
-
-                <TextView
-                    android:id="@+id/req_special"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="• One special character (!@#$%^&amp;*())"
-                    android:textSize="12sp"
-                    android:textColor="@color/imperial_red" />
-
+                <TextView android:id="@+id/req_length" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="• At least 8 characters" android:textSize="12sp" android:textColor="@color/imperial_red" />
+                <TextView android:id="@+id/req_uppercase" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="• One uppercase letter" android:textSize="12sp" android:textColor="@color/imperial_red" />
+                <TextView android:id="@+id/req_lowercase" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="• One lowercase letter" android:textSize="12sp" android:textColor="@color/imperial_red" />
+                <TextView android:id="@+id/req_digit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="• One digit" android:textSize="12sp" android:textColor="@color/imperial_red" />
+                <TextView android:id="@+id/req_special" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="• One special character" android:textSize="12sp" android:textColor="@color/imperial_red" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/reenter_password_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Re-enter PW"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:text="Confirm New Password"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
-            <EditText
-                android:id="@+id/edit_reenter_password"
+            <RelativeLayout
+                android:id="@+id/layout_reenter_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="Confirm New Password"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:background="@color/search_bar_background"
-                android:visibility="gone" />
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
 
-            <!-- Spacer to push button down if content is short -->
+                <EditText
+                    android:id="@+id/edit_reenter_password"
+                    style="@style/TAAM_EditText"
+                    android:autofillHints="newPassword"
+                    android:importantForAutofill="yes"
+                    android:hint="Re-type new password"
+                    android:inputType="textPassword"
+                    android:paddingEnd="48dp" />
+
+                <ImageButton
+                    android:id="@+id/toggleConfirmPassword"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_visibility_off"
+                    app:tint="@color/text_secondary"
+                    android:contentDescription="Toggle Visibility" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="#1A888888" />
+
+            <!-- Section: Authorization -->
+            <TextView style="@style/TAAM_HeaderText" android:text="Authorization" android:layout_marginTop="24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Current Password"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Required to save any changes above"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/confirm_current_password"
+                    style="@style/TAAM_EditText"
+                    android:autofillHints="password"
+                    android:importantForAutofill="yes"
+                    android:hint="Enter current password"
+                    android:inputType="textPassword"
+                    android:paddingEnd="48dp" />
+
+                <ImageButton
+                    android:id="@+id/toggleCurrentPassword"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_visibility_off"
+                    app:tint="@color/text_secondary"
+                    android:contentDescription="Toggle Visibility" />
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -172,14 +211,11 @@
                     android:id="@+id/button_cancel_profile"
                     style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:padding="16dp"
                     android:text="Cancel"
-                    android:textAllCaps="true"
                     android:textColor="@color/accent_action"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/button_submit_profile"
                     app:layout_constraintHorizontal_weight="1"
@@ -194,11 +230,8 @@
                     android:layout_marginStart="8dp"
                     android:padding="16dp"
                     android:text="Save Changes"
-                    android:textAllCaps="true"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
                     app:backgroundTint="@color/accent_action"
+                    android:textColor="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_weight="1"
@@ -209,5 +242,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

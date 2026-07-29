@@ -2,12 +2,14 @@ package com.professional.b07legendaryproject2026.fragments;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -36,6 +38,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         TextView textReenterPasswordLabel = view.findViewById(R.id.reenter_password_label);
+        View layoutReenterPassword = view.findViewById(R.id.layout_reenter_password);
         EditText confirmCurrentPassword = view.findViewById(R.id.confirm_current_password);
         EditText editUsername = view.findViewById(R.id.edit_username);
         EditText editPassword = view.findViewById(R.id.edit_password);
@@ -73,7 +76,7 @@ public class ProfileFragment extends Fragment {
                 int visibility = (!password.isEmpty()) ? View.VISIBLE : View.GONE;
 
                 if (textReenterPasswordLabel != null) textReenterPasswordLabel.setVisibility(visibility);
-                if (editReenterPassword != null) editReenterPassword.setVisibility(visibility);
+                if (layoutReenterPassword != null) layoutReenterPassword.setVisibility(visibility);
                 if (layoutRequirements != null) layoutRequirements.setVisibility(visibility);
 
                 if (!password.isEmpty()) {
@@ -137,20 +140,6 @@ public class ProfileFragment extends Fragment {
                 }
             };
 
-            Runnable onReauthRequired = () -> {
-                if (getContext() != null) {
-                    ToastUtils.showToast(getContext(), "Session expired. Please log back in with your current password.");
-                }
-
-                Intent intent = new Intent(requireContext(), LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-
-                if (getActivity() != null) {
-                    getActivity().finish();
-                }
-            };
-
             Runnable onFailure = () -> {
                 if (getContext() != null) {
                     ToastUtils.showToast(getContext(), "Failed to save changes. Please try again.");
@@ -175,7 +164,36 @@ public class ProfileFragment extends Fragment {
             
         });
 
+        setupPasswordToggles(view);
+
         return view;
+    }
+
+    private void setupPasswordToggles(View view) {
+        EditText editPassword = view.findViewById(R.id.edit_password);
+        EditText editReenterPassword = view.findViewById(R.id.edit_reenter_password);
+        EditText confirmCurrentPassword = view.findViewById(R.id.confirm_current_password);
+        
+        ImageButton toggleNew = view.findViewById(R.id.toggleNewPassword);
+        ImageButton toggleConfirm = view.findViewById(R.id.toggleConfirmPassword);
+        ImageButton toggleCurrent = view.findViewById(R.id.toggleCurrentPassword);
+
+        if (toggleNew != null) toggleNew.setOnClickListener(v -> toggleVisibility(editPassword, toggleNew));
+        if (toggleConfirm != null) toggleConfirm.setOnClickListener(v -> toggleVisibility(editReenterPassword, toggleConfirm));
+        if (toggleCurrent != null) toggleCurrent.setOnClickListener(v -> toggleVisibility(confirmCurrentPassword, toggleCurrent));
+    }
+
+    private void toggleVisibility(EditText editText, ImageButton button) {
+        if (editText == null || button == null) return;
+        int selection = editText.getSelectionEnd();
+        if (editText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            button.setImageResource(R.drawable.ic_visibility);
+        } else {
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            button.setImageResource(R.drawable.ic_visibility_off);
+        }
+        editText.setSelection(selection);
     }
 
     private void validatePassword(String password, TextView reqLength, TextView reqUppercase, TextView reqLowercase, TextView reqDigit, TextView reqSpecial) {

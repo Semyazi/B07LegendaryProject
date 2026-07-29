@@ -2,7 +2,9 @@ package com.professional.b07legendaryproject2026;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -39,6 +41,25 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         createAccountButton.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
             startActivity(intent);
+        });
+        setupPasswordToggle();
+    }
+
+    private void setupPasswordToggle() {
+        ImageButton toggle = findViewById(R.id.togglePassword);
+        EditText passwordInputView = findViewById(R.id.loginPasswordInput);
+        if (toggle == null || passwordInputView == null) return;
+
+        toggle.setOnClickListener(v -> {
+            int selection = passwordInputView.getSelectionEnd();
+            if (passwordInputView.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                passwordInputView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                toggle.setImageResource(R.drawable.ic_visibility);
+            } else {
+                passwordInputView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                toggle.setImageResource(R.drawable.ic_visibility_off);
+            }
+            passwordInputView.setSelection(selection);
         });
     }
 

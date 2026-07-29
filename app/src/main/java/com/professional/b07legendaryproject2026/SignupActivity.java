@@ -1,7 +1,9 @@
 package com.professional.b07legendaryproject2026;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -43,6 +45,33 @@ public class SignupActivity extends AppCompatActivity implements SignupContract.
             presenter.signup(email, username, password, confirmPassword);
         });
         backToLoginButton.setOnClickListener(v -> finish());
+        
+        setupPasswordToggles();
+    }
+
+    private void setupPasswordToggles() {
+        ImageButton togglePw = findViewById(R.id.toggleSignupPassword);
+        ImageButton toggleConfirm = findViewById(R.id.toggleSignupConfirmPassword);
+        
+        if (togglePw != null) {
+            togglePw.setOnClickListener(v -> toggleVisibility(passwordInput, togglePw));
+        }
+        if (toggleConfirm != null) {
+            toggleConfirm.setOnClickListener(v -> toggleVisibility(confirmPasswordInput, toggleConfirm));
+        }
+    }
+
+    private void toggleVisibility(EditText editText, ImageButton button) {
+        if (editText == null || button == null) return;
+        int selection = editText.getSelectionEnd();
+        if (editText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            button.setImageResource(R.drawable.ic_visibility);
+        } else {
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            button.setImageResource(R.drawable.ic_visibility_off);
+        }
+        editText.setSelection(selection);
     }
 
     @Override
