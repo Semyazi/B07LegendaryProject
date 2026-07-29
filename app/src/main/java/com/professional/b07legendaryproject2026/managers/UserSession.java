@@ -190,7 +190,6 @@ public class UserSession {
                 Exception e = task.getException();
                 if (e instanceof com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException) {
                     // Stale session: clear local session
-                    clearSession(context);
                     if (onReauthRequired != null) onReauthRequired.run();
                 } else {
                     if (onFailure != null) onFailure.run();
