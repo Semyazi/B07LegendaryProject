@@ -2,6 +2,7 @@ package com.professional.b07legendaryproject2026.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.MainActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.adapters.ArtifactAdapter;
@@ -28,6 +30,7 @@ import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 import com.professional.b07legendaryproject2026.managers.PaginationManager;
 import com.professional.b07legendaryproject2026.managers.SearchManager;
+import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
 import java.util.ArrayList;
@@ -38,11 +41,13 @@ public class HomeFragment extends Fragment {
     private static final String KEY_ITEMS_PER_PAGE = "items_per_page";
     private ArtifactAdapter artifactAdapter;
     private final List<Artifact> allArtifacts = new ArrayList<>();
+    private final List<Artifact> filteredArtifacts = new ArrayList<>();
     private final ArtifactRepository repository = new ArtifactRepository();
     private Spinner itemsPerPageSpinner;
     private PaginationManager paginationManager;
     private SearchManager searchManager;
     private RecyclerView recyclerView;
+    private String currentQuery = "";
 
     @Nullable
     @Override
@@ -51,6 +56,7 @@ public class HomeFragment extends Fragment {
 
         setupSearch(view);
         setupNavigationButtons(view);
+        showAdminButtonIfAdmin(view);
         setupRecyclerView(view);
         setupPagination(view);
         setupItemsPerPageSpinner(view);
@@ -62,7 +68,24 @@ public class HomeFragment extends Fragment {
 
     private void setupSearch(View view) {
         SearchView searchView = view.findViewById(R.id.search_view_home);
-        searchManager = new SearchManager(searchView, query -> ToastUtils.showToast(getContext(), query));
+        searchManager = new SearchManager(searchView, new SearchManager.SearchCallback() {
+            @Override
+            public void onSearchSubmitted(String query) {
+                currentQuery = query;
+                performSearch(query);
+                searchView.clearFocus();
+            }
+
+            @Override
+            public void onSearchTextChanged(String newText) {
+                currentQuery = newText;
+                performSearch(newText);
+            }
+        });
+
+        if (currentQuery != null && !currentQuery.isEmpty()) {
+            searchManager.setQuery(currentQuery, false);
+        }
     }
 
     private void setupNavigationButtons(View view) {
@@ -75,9 +98,35 @@ public class HomeFragment extends Fragment {
             });
         }
 
+        View addButton = view.findViewById(R.id.button_add);
+        if (addButton != null) {
+            addButton.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).loadFragment(new AddArtifactFragment(), true);
+                }
+            });
+        }
+
         View logoutButton = view.findViewById(R.id.button_logout);
         if (logoutButton != null) {
-            logoutButton.setOnClickListener(v -> ToastUtils.showToast(getContext(), "You have successfully logged out."));
+            logoutButton.setOnClickListener(v -> {
+                Context context = getContext();
+                if (context == null) return;
+
+                repository.stopObserving();
+
+                UserSession.getInstance().clearSession(context);
+
+                ToastUtils.showToast(context, "You have successfully logged out.");
+
+                // Redirect to LoginActivity and wipe the backstack
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
+                // Close
+                if (getActivity() != null) getActivity().finish();
+            });
         }
 
         View collectionsButton = view.findViewById(R.id.button_collections);
@@ -86,10 +135,35 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void showAdminButtonIfAdmin(View view){
+        View addButton = view.findViewById(R.id.button_add);
+        if (addButton == null) return;
+        addButton.setVisibility(View.GONE);
+
+        if(UserSession.getInstance().isAdmin())
+            addButton.setVisibility(View.VISIBLE);
+    }
+
     private void setupRecyclerView(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_artifacts);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        artifactAdapter = new ArtifactAdapter(a -> ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName()));
+
+        artifactAdapter = new ArtifactAdapter(a -> {
+            if (getActivity() == null) {
+                return;
+            }
+            // placeholder detailed artifact page
+            //ToastUtils.showToast(getContext(), "Lot: " + a.getLotNumber() + ", Name: " + a.getName());
+
+            Bundle args = new Bundle();
+            args.putSerializable("clicked-artifact", a);
+            DetailedArtifactFragment detailedArtifact = new DetailedArtifactFragment();
+            detailedArtifact.setArguments(args);
+
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(detailedArtifact, true);
+            }
+        });
         recyclerView.setAdapter(artifactAdapter);
     }
 
@@ -139,10 +213,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onArtifactsLoaded(List<Artifact> artifacts) {
                 if (!isAdded()) return;
+
                 allArtifacts.clear();
                 allArtifacts.addAll(artifacts);
-                paginationManager.setCurrentPage(1);
-                updateDisplayedArtifacts();
+
+                performSearch(currentQuery);
             }
 
             @Override
@@ -165,12 +240,12 @@ public class HomeFragment extends Fragment {
 
         int itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
 
-        paginationManager.update(allArtifacts.size(), itemsPerPage);
+        paginationManager.update(filteredArtifacts.size(), itemsPerPage);
 
         int start = (paginationManager.getCurrentPage() - 1) * itemsPerPage;
-        int end = Math.min(start + itemsPerPage, allArtifacts.size());
+        int end = Math.min(start + itemsPerPage, filteredArtifacts.size());
 
-        List<Artifact> limitedList = allArtifacts.subList(start, end);
+        List<Artifact> limitedList = filteredArtifacts.subList(start, end);
         artifactAdapter.submitList(new ArrayList<>(limitedList));
     }
 
@@ -198,5 +273,22 @@ public class HomeFragment extends Fragment {
         if(recyclerView == null)
             return;
         recyclerView.scrollToPosition(0);
+    }
+
+    private void performSearch(String query) {
+        filteredArtifacts.clear();
+
+        if (query == null || query.trim().isEmpty()) {
+            filteredArtifacts.addAll(allArtifacts);
+        } else {
+            for (Artifact artifact : allArtifacts) {
+                if (artifact.matchesQuery(query)) {
+                    filteredArtifacts.add(artifact);
+                }
+            }
+        }
+
+        paginationManager.setCurrentPage(1);
+        updateDisplayedArtifacts();
     }
 }

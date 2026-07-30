@@ -2,36 +2,57 @@ package com.professional.b07legendaryproject2026.fragments;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import android.content.Intent;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+
+import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.R;
+import com.professional.b07legendaryproject2026.managers.UserSession;
+import com.professional.b07legendaryproject2026.utils.PasswordValidator;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import com.professional.b07legendaryproject2026.utils.UsernameValidator;
+import com.professional.b07legendaryproject2026.utils.ValidationResult;
 
 public class ProfileFragment extends Fragment {
-
-    private boolean isPwValid = false;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         TextView textReenterPasswordLabel = view.findViewById(R.id.reenter_password_label);
+        View layoutReenterPassword = view.findViewById(R.id.layout_reenter_password);
+        EditText confirmCurrentPassword = view.findViewById(R.id.confirm_current_password);
         EditText editUsername = view.findViewById(R.id.edit_username);
         EditText editPassword = view.findViewById(R.id.edit_password);
         EditText editReenterPassword = view.findViewById(R.id.edit_reenter_password);
         Button submitButton = view.findViewById(R.id.button_submit_profile);
+        Button cancelButton = view.findViewById(R.id.button_cancel_profile);
+
+        if (cancelButton != null) {
+            cancelButton.setOnClickListener(v -> {
+                if (getActivity() != null && isAdded()) {
+                    getParentFragmentManager().popBackStack();
+                }
+            });
+        }
 
         LinearLayout layoutRequirements = view.findViewById(R.id.layout_password_requirements);
         TextView reqLength = view.findViewById(R.id.req_length);
@@ -39,6 +60,11 @@ public class ProfileFragment extends Fragment {
         TextView reqLowercase = view.findViewById(R.id.req_lowercase);
         TextView reqDigit = view.findViewById(R.id.req_digit);
         TextView reqSpecial = view.findViewById(R.id.req_special);
+
+        String currentUsername = UserSession.getInstance().getUsername();
+        if (currentUsername != null && !currentUsername.isEmpty() && editUsername != null) {
+            editUsername.setHint(currentUsername);
+        }
 
         editPassword.addTextChangedListener(new TextWatcher() {
             @Override
@@ -48,9 +74,9 @@ public class ProfileFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String password = s.toString();
                 int visibility = (!password.isEmpty()) ? View.VISIBLE : View.GONE;
-                
+
                 if (textReenterPasswordLabel != null) textReenterPasswordLabel.setVisibility(visibility);
-                if (editReenterPassword != null) editReenterPassword.setVisibility(visibility);
+                if (layoutReenterPassword != null) layoutReenterPassword.setVisibility(visibility);
                 if (layoutRequirements != null) layoutRequirements.setVisibility(visibility);
 
                 if (!password.isEmpty()) {
@@ -63,48 +89,150 @@ public class ProfileFragment extends Fragment {
         });
 
         submitButton.setOnClickListener(v -> {
+            String confirmCurrentPasswordText = confirmCurrentPassword.getText().toString().trim();
             String editUserText = editUsername.getText().toString().trim();
             String editPWText = editPassword.getText().toString().trim();
             String editPWReenterText = editReenterPassword.getText().toString().trim();
 
-            if(editUserText.isEmpty() && editPWText.isEmpty() && editPWReenterText.isEmpty()) {
+            boolean hasUsernameChange = !editUserText.isEmpty() && !editUserText.equals(currentUsername);
+            boolean hasPasswordChange = !editPWText.isEmpty();
+
+            confirmCurrentPassword( confirmCurrentPasswordText, () -> {
+
+            if (!hasUsernameChange && !hasPasswordChange) {
                 ToastUtils.showToast(getContext(), "No changes were made.");
-            } else if(!editPWText.isEmpty() && !isPwValid) {
-                ToastUtils.showToast(getContext(), "Please fulfill all password requirements.");
-            } else if(!editPWText.isEmpty() && editPWReenterText.isEmpty()) {
-                ToastUtils.showToast(getContext(), "Please re-enter your password.");
-            } else if(!editPWText.isEmpty() && !editPWReenterText.equals(editPWText)) {
-                ToastUtils.showToast(getContext(), "Passwords do not match.");
-            } else {
-                ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
-                if (getActivity() != null) {
-                    getActivity().onBackPressed();
+                return;
+            }
+
+            if (hasUsernameChange) {
+                ValidationResult userResult = UsernameValidator.validate(editUserText);
+                if (!userResult.isValid()) {
+                    ToastUtils.showToast(getContext(), userResult.getErrorMessage());
+                    return;
                 }
             }
+
+            if (hasPasswordChange) {
+                ValidationResult pwResult = PasswordValidator.validate(editPWText);
+                if (!pwResult.isValid()) {
+                    ToastUtils.showToast(getContext(), pwResult.getErrorMessage());
+                    return;
+                }
+                if (editPWReenterText.isEmpty()) {
+                    ToastUtils.showToast(getContext(), "Please re-enter your password.");
+                    return;
+                }
+                if (!editPWReenterText.equals(editPWText)) {
+                    ToastUtils.showToast(getContext(), "Passwords do not match.");
+                    return;
+                }
+            }
+
+            submitButton.setEnabled(false);
+            cancelButton.setEnabled(false);
+
+            Runnable onAllSuccess = () -> {
+                if (getContext() != null) {
+                    ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
+                }
+                if (getActivity() != null && isAdded()) {
+                    getParentFragmentManager().popBackStack();
+                }
+            };
+
+            Runnable onFailure = () -> {
+                if (getContext() != null) {
+                    ToastUtils.showToast(getContext(), "Failed to save changes. Please try again.");
+                }
+                submitButton.setEnabled(true);
+                cancelButton.setEnabled(true);
+            };
+
+            if (hasUsernameChange && hasPasswordChange) {
+                UserSession.getInstance().updateUsername(requireContext(), editUserText, () -> {
+                    UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
+                }, onFailure);
+            } else if (hasUsernameChange) {
+                UserSession.getInstance().updateUsername(requireContext(), editUserText, onAllSuccess, onFailure);
+            } else {
+                UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
+            }
+            }, () -> {
+                ToastUtils.showToast(getContext(), "Current password is incorrect.");
+            });
+
+            
         });
+
+        setupPasswordToggles(view);
 
         return view;
     }
 
-    private void validatePassword(String password, TextView reqLength, TextView reqUppercase, TextView reqLowercase, TextView reqDigit, TextView reqSpecial) {
-        boolean hasLength = password.length() >= 8;
-        boolean hasUpper = password.matches(".*[A-Z].*");
-        boolean hasLower = password.matches(".*[a-z].*");
-        boolean hasDigit = password.matches(".*\\d.*");
-        boolean hasSpecial = password.matches(".*[!@#$%^&*()].*");
+    private void setupPasswordToggles(View view) {
+        EditText editPassword = view.findViewById(R.id.edit_password);
+        EditText editReenterPassword = view.findViewById(R.id.edit_reenter_password);
+        EditText confirmCurrentPassword = view.findViewById(R.id.confirm_current_password);
         
-        updateRequirementUI(reqLength, hasLength);
-        updateRequirementUI(reqUppercase, hasUpper);
-        updateRequirementUI(reqLowercase, hasLower);
-        updateRequirementUI(reqDigit, hasDigit);
-        updateRequirementUI(reqSpecial, hasSpecial);
+        ImageButton toggleNew = view.findViewById(R.id.toggleNewPassword);
+        ImageButton toggleConfirm = view.findViewById(R.id.toggleConfirmPassword);
+        ImageButton toggleCurrent = view.findViewById(R.id.toggleCurrentPassword);
 
-        isPwValid = hasLength && hasUpper && hasLower && hasDigit && hasSpecial;
+        if (toggleNew != null) toggleNew.setOnClickListener(v -> toggleVisibility(editPassword, toggleNew));
+        if (toggleConfirm != null) toggleConfirm.setOnClickListener(v -> toggleVisibility(editReenterPassword, toggleConfirm));
+        if (toggleCurrent != null) toggleCurrent.setOnClickListener(v -> toggleVisibility(confirmCurrentPassword, toggleCurrent));
+    }
+
+    private void toggleVisibility(EditText editText, ImageButton button) {
+        if (editText == null || button == null) return;
+        int selection = editText.getSelectionEnd();
+        if (editText.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            button.setImageResource(R.drawable.ic_visibility);
+        } else {
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            button.setImageResource(R.drawable.ic_visibility_off);
+        }
+        editText.setSelection(selection);
+    }
+
+    private void validatePassword(String password, TextView reqLength, TextView reqUppercase, TextView reqLowercase, TextView reqDigit, TextView reqSpecial) {
+        updateRequirementUI(reqLength, PasswordValidator.hasMinLength(password));
+        updateRequirementUI(reqUppercase, PasswordValidator.hasUppercase(password));
+        updateRequirementUI(reqLowercase, PasswordValidator.hasLowercase(password));
+        updateRequirementUI(reqDigit, PasswordValidator.hasDigit(password));
+        updateRequirementUI(reqSpecial, PasswordValidator.hasSpecialChar(password));
+    }
+
+    private void confirmCurrentPassword(String password, Runnable onSuccess, Runnable onFailure){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null|| password == null || password.isEmpty()){
+            onFailure.run();
+            return;
+        }
+
+        String email = user.getEmail();
+        if (email == null || email.isEmpty()){
+            onFailure.run();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        user.reauthenticate(credential)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    onSuccess.run();
+                } else {
+                    onFailure.run();
+                }
+            });
     }
 
     private void updateRequirementUI(TextView textView, boolean isMet) {
         if (textView == null || getContext() == null) return;
         int color = ContextCompat.getColor(getContext(), isMet ? R.color.success_green : R.color.imperial_red);
         textView.setTextColor(color);
+
     }
 }

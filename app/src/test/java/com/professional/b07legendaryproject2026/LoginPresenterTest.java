@@ -31,7 +31,14 @@ public class LoginPresenterTest {
     public void login_emptyEmail_showsEmailError() {
         presenter.login("", "password123");
 
-        verify(view).showEmailError("Email cannot be empty");
+        verify(view).showEmailError("Email cannot be empty.");
+        verify(model, never()).login(any(), any(), any());
+    }
+
+    @Test
+    public void login_invalidEmailFormat_showsEmailError() {
+        presenter.login("not-an-email", "password123");
+        verify(view).showEmailError("Invalid email format (e.g., name@example.com).");
         verify(model, never()).login(any(), any(), any());
     }
 
@@ -39,7 +46,7 @@ public class LoginPresenterTest {
     public void login_emptyPassword_showsPasswordError() {
         presenter.login("test@example.com", "");
 
-        verify(view).showPasswordError("Password cannot be empty");
+        verify(view).showPasswordError("Password cannot be empty.");
         verify(model, never()).login(any(), any(), any());
     }
 
@@ -85,8 +92,8 @@ public class LoginPresenterTest {
                 callbackCaptor.capture()
         );
 
-        callbackCaptor.getValue().onFailure("Invalid email or password");
+        callbackCaptor.getValue().onFailure("Invalid email or password.");
 
-        verify(view).showLoginFailure("Invalid email or password");
+        verify(view).showLoginFailure("Invalid email or password.");
     }
 }
