@@ -39,6 +39,10 @@ public class DetailedArtifactFragment extends Fragment {
             bindArtifactData(view, artifact);
         }
 
+        if (artifact != null) {
+            loadCommentSection(artifact);
+        }
+
         setupActionButtons(view);
 
         return view;
@@ -65,14 +69,14 @@ public class DetailedArtifactFragment extends Fragment {
         lotNumber.setText(artifact.getLotNumber());
         secondaryInfo.setText(artifact.getPeriodDescription());
         description.setText(artifact.getDescription());
-        
+
         if (artifact.getCategoryNum() != null) {
             category.setText(artifact.getCategoryNum().getDisplayName());
         }
         if (artifact.getMaterialNum() != null) {
             material.setText(artifact.getMaterialNum().getDisplayName());
         }
-        
+
         origin.setText(artifact.getCulturalOrigin());
         dimensions.setText(artifact.getDimensions());
         condition.setText(artifact.getConditionReport());
@@ -114,6 +118,15 @@ public class DetailedArtifactFragment extends Fragment {
             btnDelete.setVisibility(View.GONE);
             if (space1 != null) space1.setVisibility(View.GONE);
             if (space2 != null) space2.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadCommentSection(Artifact artifact) {
+        if (getChildFragmentManager().findFragmentById(R.id.fragment_container_comments) == null) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_comments, CommentFragment.newInstance(artifact.getLotNumber()))
+                    .commit();
         }
     }
 }
