@@ -18,11 +18,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.content.Intent;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
-
 import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.managers.UserSession;
@@ -119,7 +114,7 @@ public class ProfileFragment extends Fragment {
 
             submitButton.setEnabled(false);
 
-            confirmCurrentPassword(confirmCurrentPasswordText, () -> {
+            UserSession.getInstance().reauthenticate(confirmCurrentPasswordText, () -> {
                 Runnable onAllSuccess = () -> {
                     if (getContext() != null) {
                         ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
@@ -197,31 +192,6 @@ public class ProfileFragment extends Fragment {
         updateRequirementUI(reqLowercase, PasswordValidator.hasLowercase(password));
         updateRequirementUI(reqDigit, PasswordValidator.hasDigit(password));
         updateRequirementUI(reqSpecial, PasswordValidator.hasSpecialChar(password));
-    }
-
-    private void confirmCurrentPassword(String password, Runnable onSuccess, Runnable onFailure){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (user == null|| password == null || password.isEmpty()){
-            onFailure.run();
-            return;
-        }
-
-        String email = user.getEmail();
-        if (email == null || email.isEmpty()){
-            onFailure.run();
-            return;
-        }
-
-        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        user.reauthenticate(credential)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    onSuccess.run();
-                } else {
-                    onFailure.run();
-                }
-            });
     }
 
     private void updateRequirementUI(TextView textView, boolean isMet) {

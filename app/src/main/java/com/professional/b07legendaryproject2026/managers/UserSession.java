@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -204,5 +206,30 @@ public class UserSession {
                 }
             }
         });
+    }
+
+    // Re-authenticates the current user using their password
+    public void reauthenticate(String password, Runnable onSuccess, Runnable onFailure) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || password == null || password.isEmpty()) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        String email = user.getEmail();
+        if (email == null || email.isEmpty()) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        user.reauthenticate(credential)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    if (onSuccess != null) onSuccess.run();
+                } else {
+                    if (onFailure != null) onFailure.run();
+                }
+            });
     }
 }
