@@ -22,6 +22,9 @@ public class ArtifactRepository {
         void onArtifactsLoaded(List<Artifact> artifacts);
         void onError(String message);
     }
+    public interface SaveStatusCallback {
+        void onStatusChecked(boolean isSaved);
+    }
 
     private final DatabaseReference artifactsReference;
     private ValueEventListener artifactsListener;
@@ -135,6 +138,51 @@ public class ArtifactRepository {
         };
 
         savedReference.addValueEventListener(savedListener);
+    }
+
+    public void isArtifactSaved(String uid, String lotNumber, SaveStatusCallback callback) {
+        if (uid == null || lotNumber == null) {
+            callback.onStatusChecked(false);
+            return;
+        }
+
+        DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+                .getReference("users").child(uid).child("savedArtifacts").child(lotNumber);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean isSaved = snapshot.exists() && Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
+                callback.onStatusChecked(isSaved);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onStatusChecked(false);
+            }
+        });
+    }
+
+    public void toggleSaveArtifact(String uid, String lotNumber, boolean currentSavedState, Runnable onSuccess, Runnable onFailure) {
+        if (uid == null || lotNumber == null) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+                .getReference("users").child(uid).child("savedArtifacts").child(lotNumber);
+
+        if (currentSavedState) {
+            ref.removeValue().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && onSuccess != null) onSuccess.run();
+                else if (!task.isSuccessful() && onFailure != null) onFailure.run();
+            });
+        } else {
+            ref.setValue(true).addOnCompleteListener(task -> {
+                if (task.isSuccessful() && onSuccess != null) onSuccess.run();
+                else if (!task.isSuccessful() && onFailure != null) onFailure.run();
+            });
+        }
     }
 
     public void stopObserving() {
