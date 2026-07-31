@@ -12,7 +12,9 @@ import com.professional.b07legendaryproject2026.fragments.HomeFragment;
 import com.professional.b07legendaryproject2026.fragments.ProfileFragment;
 import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import com.professional.b07legendaryproject2026.fragments.CollectionsFragment;
 import androidx.fragment.app.FragmentTransaction;
+
 public class MainActivity extends AppCompatActivity {
     private View topNavigationBar;
 
@@ -49,10 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupTopTabListeners() {
         findViewById(R.id.button_tab_home).setOnClickListener(v -> loadTabFragment(new HomeFragment()));
 
-        findViewById(R.id.button_tab_collections).setOnClickListener(v -> {
-            // TODO: Replace with CollectionsFragment once created
-            ToastUtils.showToast(this, "Viewing user collections.");
-        });
+        findViewById(R.id.button_tab_collections).setOnClickListener(v -> loadTabFragment(new CollectionsFragment()));
 
         findViewById(R.id.button_tab_profile).setOnClickListener(v -> loadTabFragment(new ProfileFragment()));
 

@@ -18,8 +18,13 @@ import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import androidx.core.content.ContextCompat;
+import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 
 public class DetailedArtifactFragment extends Fragment {
+
+    private final ArtifactRepository repository = new ArtifactRepository();
+    private boolean isSaved = false;
 
     private static final String ARTIFACT = "clicked-artifact";
 
@@ -37,9 +42,9 @@ public class DetailedArtifactFragment extends Fragment {
 
         if (artifact != null) {
             bindArtifactData(view, artifact);
+            setupActionButtons(view, artifact);
+            checkIfSaved(view, artifact);
         }
-
-        setupActionButtons(view);
 
         return view;
     }
@@ -90,17 +95,16 @@ public class DetailedArtifactFragment extends Fragment {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setupActionButtons(View view) {
+    private void setupActionButtons(View view, Artifact artifact) {
         Button btnSave = view.findViewById(R.id.button_save_to_collection);
         Button btnEdit = view.findViewById(R.id.button_edit);
         Button btnDelete = view.findViewById(R.id.button_delete);
         View space1 = view.findViewById(R.id.admin_action_space);
         View space2 = view.findViewById(R.id.admin_action_space_2);
 
-        btnSave.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Save to collection"));
+        btnSave.setOnClickListener(v -> handleSaveToggle(view, artifact));
 
         if (UserSession.getInstance().isAdmin()) {
-            btnSave.setText("Save"); // Shorten to fit all 3 buttons
             btnEdit.setVisibility(View.VISIBLE);
             btnDelete.setVisibility(View.VISIBLE);
             if (space1 != null) space1.setVisibility(View.VISIBLE);
@@ -109,11 +113,65 @@ public class DetailedArtifactFragment extends Fragment {
             btnEdit.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Edit"));
             btnDelete.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Delete"));
         } else {
-            btnSave.setText("Save to Collection"); // Full text for regular users
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             if (space1 != null) space1.setVisibility(View.GONE);
             if (space2 != null) space2.setVisibility(View.GONE);
         }
+
+        updateSaveButtonUI(view);
+    }
+
+    private void checkIfSaved(View view, Artifact artifact) {
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) return;
+
+        repository.isArtifactSaved(uid, artifact.getLotNumber(), saved -> {
+            if (!isAdded()) return;
+            isSaved = saved;
+            updateSaveButtonUI(view);
+        });
+    }
+
+    private void updateSaveButtonUI(View view) {
+        Button btnSave = view.findViewById(R.id.button_save_to_collection);
+        if (btnSave == null || getContext() == null) return;
+
+        boolean isAdmin = UserSession.getInstance().isAdmin();
+
+        if (isSaved) {
+            btnSave.setText(isAdmin ? "Remove" : "Remove from Collection");
+            btnSave.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.imperial_red));
+        } else {
+            btnSave.setText(isAdmin ? "Save" : "Save to Collection");
+            btnSave.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_primary));
+        }
+    }
+
+    private void handleSaveToggle(View view, Artifact artifact) {
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) {
+            ToastUtils.showToast(getContext(), "Unable to update collection.");
+            return;
+        }
+
+        Button btnSave = view.findViewById(R.id.button_save_to_collection);
+        if (btnSave != null) btnSave.setEnabled(false);
+
+        boolean currentSavedState = isSaved;
+
+        repository.toggleSaveArtifact(uid, artifact.getLotNumber(), currentSavedState, () -> {
+            if (!isAdded()) return;
+            isSaved = !currentSavedState;
+            updateSaveButtonUI(view);
+            if (btnSave != null) btnSave.setEnabled(true);
+
+            String message = isSaved ? "Added to your collection." : "Removed from your collection.";
+            ToastUtils.showToast(getContext(), message);
+        }, () -> {
+            if (!isAdded()) return;
+            if (btnSave != null) btnSave.setEnabled(true);
+            ToastUtils.showToast(getContext(), "Failed to update collection.");
+        });
     }
 }
