@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">TAAM Collection (CSCB07 S26)</string>
 
+    <string name="nav_home">Home</string>
+    <string name="tab_collections">Collections</string>
     <string name="search_hint">Search artifacts&#8230;</string>
     <string name="my_collections">My Collections</string>
     <string name="profile">Profile</string>
