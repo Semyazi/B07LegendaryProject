@@ -80,6 +80,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_add_row"
         tools:visibility="visible" />
+    
+    <ProgressBar
+        android:id="@+id/progress_bar_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/button_primary"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/pagination_bar_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_add_row" />
 
     <LinearLayout
         android:id="@+id/pagination_bar_container"
