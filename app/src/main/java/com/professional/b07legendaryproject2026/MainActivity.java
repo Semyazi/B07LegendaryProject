@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.professional.b07legendaryproject2026.fragments.BaseArtifactGridFragment;
 import com.professional.b07legendaryproject2026.fragments.HomeFragment;
 import com.professional.b07legendaryproject2026.fragments.ProfileFragment;
 import com.professional.b07legendaryproject2026.managers.UserSession;
@@ -77,6 +78,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleLogout() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof BaseArtifactGridFragment) {
+            ((BaseArtifactGridFragment) currentFragment).stopObservers();
+        }
+
         UserSession.getInstance().clearSession(this);
         ToastUtils.showToast(this, "You have successfully logged out.");
         redirectToLogin();

@@ -56,9 +56,15 @@ public abstract class BaseArtifactGridFragment extends Fragment {
         }
     }
 
+    public void stopObservers() {
+        if (repository != null) {
+            repository.stopObserving();
+        }
+    }
+
     @Override
     public void onDestroyView() {
-        repository.stopObserving();
+        stopObservers();
         super.onDestroyView();
     }
 }

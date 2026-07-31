@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -34,14 +35,17 @@ public class ArtifactGridManager {
     private RecyclerView recyclerView;
     private ArtifactAdapter artifactAdapter;
     private TextView emptyStateText;
+    private ProgressBar progressBar;
     private Spinner itemsPerPageSpinner;
 
-    private SearchManager searchManager; // <-- USING YOUR SEARCHMANAGER HERE
+    private SearchManager searchManager;
     private PaginationManager paginationManager;
 
     private final List<Artifact> masterList = new ArrayList<>();
     private final List<Artifact> filteredArtifacts = new ArrayList<>();
     private String currentQuery = "";
+
+    private boolean isDataLoaded = false;
 
     public interface OnArtifactClickListener {
         void onArtifactClick(Artifact artifact);
@@ -65,6 +69,7 @@ public class ArtifactGridManager {
     }
 
     public void setArtifacts(List<Artifact> artifacts) {
+        isDataLoaded = true;
         masterList.clear();
         if (artifacts != null) {
             masterList.addAll(artifacts);
@@ -75,6 +80,7 @@ public class ArtifactGridManager {
     private void initViews() {
         recyclerView = rootGridContainer.findViewById(R.id.recycler_view_artifacts);
         emptyStateText = rootGridContainer.findViewById(R.id.text_home_title);
+        progressBar = rootGridContainer.findViewById(R.id.progress_bar_loading);
         itemsPerPageSpinner = rootGridContainer.findViewById(R.id.spinner_items_per_page);
     }
 
@@ -185,6 +191,17 @@ public class ArtifactGridManager {
 
     private void updateDisplayedArtifacts() {
         if (itemsPerPageSpinner == null || paginationManager == null) return;
+
+        if (!isDataLoaded) {
+            if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+            emptyStateText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
+            return;
+        }
+
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
 
         int itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
         paginationManager.update(filteredArtifacts.size(), itemsPerPage);
