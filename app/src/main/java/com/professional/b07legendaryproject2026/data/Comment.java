@@ -9,6 +9,7 @@ import java.util.Objects;
 public class Comment implements Comparable<Comment> {
 
     private final String id;
+    private String authorUid;
     private final String msg;
     private final Instant timestamp; // Timestamp in UTC for sorting
     private String username;
@@ -27,10 +28,16 @@ public class Comment implements Comparable<Comment> {
         this.username = username;
     }
 
+    public Comment(String id, String msg, Instant timestamp, String username, String authorUid) {
+        this(id, msg, timestamp, username);
+        this.authorUid = Objects.requireNonNull(authorUid);
+    }
+
     //Get methods
     public String getId() {
         return id;
     }
+    public String getAuthorUid() { return authorUid; }
     public String getMsg() {
         return msg;
     }
