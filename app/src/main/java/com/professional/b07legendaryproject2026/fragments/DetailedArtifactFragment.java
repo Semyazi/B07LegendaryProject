@@ -44,6 +44,7 @@ public class DetailedArtifactFragment extends Fragment {
             bindArtifactData(view, artifact);
             setupActionButtons(view, artifact);
             checkIfSaved(view, artifact);
+            loadCommentSection(artifact);
         }
 
         return view;
@@ -70,14 +71,14 @@ public class DetailedArtifactFragment extends Fragment {
         lotNumber.setText(artifact.getLotNumber());
         secondaryInfo.setText(artifact.getPeriodDescription());
         description.setText(artifact.getDescription());
-        
+
         if (artifact.getCategoryNum() != null) {
             category.setText(artifact.getCategoryNum().getDisplayName());
         }
         if (artifact.getMaterialNum() != null) {
             material.setText(artifact.getMaterialNum().getDisplayName());
         }
-        
+
         origin.setText(artifact.getCulturalOrigin());
         dimensions.setText(artifact.getDimensions());
         condition.setText(artifact.getConditionReport());
@@ -173,5 +174,14 @@ public class DetailedArtifactFragment extends Fragment {
             if (btnSave != null) btnSave.setEnabled(true);
             ToastUtils.showToast(getContext(), "Failed to update collection.");
         });
+    }
+
+    private void loadCommentSection(Artifact artifact) {
+        if (getChildFragmentManager().findFragmentById(R.id.fragment_container_comments) == null) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_comments, CommentFragment.newInstance(artifact.getLotNumber()))
+                    .commit();
+        }
     }
 }

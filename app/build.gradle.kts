@@ -24,6 +24,9 @@ android {
         }
     }
     compileOptions {
+        //Enable Desugaring to allow use of Java 8+ APIs
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -48,4 +51,7 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    //Desugaring Dependency
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
