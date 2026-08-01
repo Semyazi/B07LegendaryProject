@@ -8,23 +8,26 @@ public class User {
     private String username;
     private String password;
     private boolean isAdmin;
+    private boolean isSuperAdmin;
     private ArrayList<String> savedArtifactIds;
     private ArrayList<String> likedArtifactIds;
 
     //Default Constructor
     public User() {
         this.isAdmin = false;
+        this.isSuperAdmin = false;
         this.savedArtifactIds = new ArrayList<>();
         this.likedArtifactIds = new ArrayList<>();
     }
 
     //Constructor with Parameters
-    public User(String id, String email, String username, String password, boolean isAdmin) {
+    public User(String id, String email, String username, String password, boolean isAdmin, boolean isSuperAdmin) {
         this.id = id;
         this.email = email;
         this.username = username;
         this.password = password;
         this.isAdmin = isAdmin;
+        this.isSuperAdmin = isSuperAdmin;
         this.savedArtifactIds = new ArrayList<>();
         this.likedArtifactIds = new ArrayList<>();
     }
@@ -39,8 +42,10 @@ public class User {
     public String  getUsername() {return username;}
     public void  setUsername(String username) {this.username = username;}
 
-    public boolean checkAdmin() {return isAdmin;}
+    public boolean checkAdmin() {return isAdmin || isSuperAdmin;}
     public void setAdmin(boolean admin) {this.isAdmin = admin;}
+    public boolean checkSuperAdmin(){return isSuperAdmin;}
+    public void setSuperAdmin(boolean superadmin){this.isSuperAdmin = superadmin;}
 
     public ArrayList<String> getSavedArtifactsIds() {return savedArtifactIds;}
     public void setSavedArtifactIds(ArrayList<String> savedArtifactIds) {

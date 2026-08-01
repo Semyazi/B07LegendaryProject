@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -18,10 +20,12 @@ public class UserSession {
 
     private String username;
     private boolean isAdmin;
+    private boolean isSuperAdmin;
 
     private static final String PREF_NAME = "LegendaryProjectUserPrefs";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_IS_ADMIN = "admin";
+    private static final String KEY_IS_SUPER_ADMIN = "superadmin";
 
     private UserSession() {}
 
@@ -58,12 +62,13 @@ public class UserSession {
                     java.util.Map<String, Object> userData = new java.util.HashMap<>();
                     userData.put("username", username);
                     userData.put("admin", false);
+                    userData.put("superadmin", false);
 
                     FirebaseDatabase.getInstance().getReference("users").child(newUid)
                             .setValue(userData)
                             .addOnCompleteListener(dbTask -> {
                                 if (dbTask.isSuccessful()) {
-                                    setSession(username, false, context);
+                                    setSession(username, false, false, context);
                                     if (onSuccess != null) onSuccess.run();
                                 } else {
                                     if (onFailure != null) onFailure.run();
@@ -72,7 +77,7 @@ public class UserSession {
                 });
     }
 
-    // Fetches the user information from the Firebase Realtime DB, we must first login using Firebase Auth to get a UID
+    // Fetches the user information from the Firebase Realtime DB, we must first log in using Firebase Auth to get a UID
     public void fetchUserSetup(Context context, Runnable onSuccess, Runnable onFailure) {
         String uid = getUid();
         if (uid == null) {
@@ -90,12 +95,14 @@ public class UserSession {
                 }
 
                 Boolean adminFlag = snapshot.child("admin").getValue(Boolean.class);
+                Boolean superAdminFlag = snapshot.child("superadmin").getValue(Boolean.class);
                 String uName = snapshot.child("username").getValue(String.class);
 
                 boolean finalAdmin = adminFlag != null ? adminFlag : false;
+                boolean finalSuperAdmin = superAdminFlag != null ? superAdminFlag : false;
                 String finalUsername = uName != null ? uName : "Unknown";
 
-                setSession(finalUsername, finalAdmin, context);
+                setSession(finalUsername, finalAdmin, finalSuperAdmin, context);
                 if (onSuccess != null) onSuccess.run();
             }
 
@@ -107,7 +114,7 @@ public class UserSession {
     }
 
     // Save a session to memory and to SharedPreferences
-    public void setSession(String username, boolean isAdmin, Context context) {
+    public void setSession(String username, boolean isAdmin, boolean isSuperAdmin, Context context) {
         this.username = username;
         this.isAdmin = isAdmin;
 
@@ -123,12 +130,14 @@ public class UserSession {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         this.username = prefs.getString(KEY_USERNAME, null);
         this.isAdmin = prefs.getBoolean(KEY_IS_ADMIN, false);
+        this.isSuperAdmin = prefs.getBoolean(KEY_IS_SUPER_ADMIN, false);
     }
 
     // Reset the session (i.e. logout) and sign out of Firebase Auth
     public void clearSession(Context context) {
         this.username = null;
         this.isAdmin = false;
+        this.isSuperAdmin = false;
 
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         prefs.edit().clear().apply();
@@ -140,7 +149,8 @@ public class UserSession {
 
     // Getters
     public String getUsername() { return username; }
-    public boolean isAdmin() { return isLoggedIn() && isAdmin; }
+    public boolean isAdmin() { return isLoggedIn() && (isAdmin || isSuperAdmin); }
+    public boolean isSuperAdmin(){ return isLoggedIn() && isSuperAdmin; }
     // Check if we're logged in with Firebase and this object
     public boolean isLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -165,7 +175,7 @@ public class UserSession {
                 .setValue(newUsername)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        setSession(newUsername, this.isAdmin, context);
+                        setSession(newUsername, this.isAdmin, this.isSuperAdmin, context);
                         if (onSuccess != null) onSuccess.run();
                     } else {
                         if (onFailure != null) onFailure.run();
@@ -196,5 +206,30 @@ public class UserSession {
                 }
             }
         });
+    }
+
+    // Re-authenticates the current user using their password
+    public void reauthenticate(String password, Runnable onSuccess, Runnable onFailure) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || password == null || password.isEmpty()) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        String email = user.getEmail();
+        if (email == null || email.isEmpty()) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+        user.reauthenticate(credential)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    if (onSuccess != null) onSuccess.run();
+                } else {
+                    if (onFailure != null) onFailure.run();
+                }
+            });
     }
 }
