@@ -18,6 +18,8 @@ import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import com.professional.b07legendaryproject2026.data.ArtifactRepository;
+import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 
 public class DetailedArtifactFragment extends Fragment {
 
@@ -39,7 +41,7 @@ public class DetailedArtifactFragment extends Fragment {
             bindArtifactData(view, artifact);
         }
 
-        setupActionButtons(view);
+        setupActionButtons(view, artifact);
 
         return view;
     }
@@ -90,7 +92,7 @@ public class DetailedArtifactFragment extends Fragment {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setupActionButtons(View view) {
+    private void setupActionButtons(View view, Artifact artifact) {
         Button btnSave = view.findViewById(R.id.button_save_to_collection);
         Button btnEdit = view.findViewById(R.id.button_edit);
         Button btnDelete = view.findViewById(R.id.button_delete);
@@ -107,8 +109,32 @@ public class DetailedArtifactFragment extends Fragment {
             if (space2 != null) space2.setVisibility(View.VISIBLE);
 
             btnEdit.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Edit"));
-            btnDelete.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Delete"));
-        } else {
+            btnDelete.setOnClickListener(v -> {
+                if(artifact == null){
+                    ToastUtils.showToast(getContext(), "No artifact selected.");
+                    return;
+                }
+
+                ArtifactRepository repository = new ArtifactRepository();
+                SupabaseImageUploader imageUploader = new SupabaseImageUploader(requireContext());
+
+                repository.deleteArtifact(artifact, imageUploader, new ArtifactRepository.DeleteCallback(){
+                    @Override
+                    public void onSuccess(){
+                        ToastUtils.showToast(getContext(), "Artifact deleted.");
+
+                        if(getParentFragmentManager() != null){
+                            getParentFragmentManager().popBackStack();
+                        }
+                    }
+                    @Override
+                    public void onError(String message){
+                        ToastUtils.showToast(getContext(), "Delete failed: " + message);
+                    }
+                });
+            });
+        }
+        else {
             btnSave.setText("Save to Collection"); // Full text for regular users
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);

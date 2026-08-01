@@ -30,6 +30,11 @@ public class SupabaseImageUploader {
         void onError(String message);
     }
 
+    public interface DeleteCallback{
+        void onSuccess();
+        void onError(String message);
+    }
+
     private static final int MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
 
     private final Context appContext;
@@ -126,6 +131,59 @@ public class SupabaseImageUploader {
         });
     }
 
+    public void deleteImage(String publicUrl, DeleteCallback callback){
+        if(isBlank(supabaseUrl) || isBlank(supabaseAnonKey) || isBlank(bucketName)){
+            postDeleteError(callback, "Image deleter not figured with URL, anon key, and bucket name.");
+            return;
+        }
+        if(isBlank(publicUrl)){
+            postDeleteError(callback, "Image URL is empty.");
+            return;
+        }
+
+        String filePath = extractFilePathFromPublicUrl(publicUrl);
+
+        if(isBlank(filePath)){
+            postDeleteError(callback, "Could not extract image path from URL.");
+            return;
+        }
+
+        HttpUrl deleteUrl = buildStorageUrl("storage/v1/object", filePath);
+
+        if(deleteUrl == null){
+            postDeleteError(callback, "Supabase URL is invalid.");
+            return;
+        }
+
+        Request request = new Request.Builder()
+                .url(deleteUrl)
+                .addHeader("apikey", supabaseAnonKey)
+                .addHeader("Authorization", "Bearer" + supabaseAnonKey)
+                .delete()
+                .build();
+
+        client.newCall(request).enqueue(new Callback(){
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e){
+                postDeleteError(callback, "Image delete failed: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response){
+                try {
+                    if (response.isSuccessful()) {
+                        postDeleteSuccess(callback);
+                    } else {
+                        postDeleteError(callback, "Image delete failed with status " + response.code() + ".");
+                    }
+                }
+                    finally{
+                        response.close();
+                    }
+                }
+            });
+        }
+
+
     private byte[] readBytes(Uri imageUri) throws IOException {
         ContentResolver resolver = appContext.getContentResolver();
         try (InputStream inputStream = resolver.openInputStream(imageUri);
@@ -172,5 +230,23 @@ public class SupabaseImageUploader {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String extractFilePathFromPublicUrl(String publicUrl){
+        if(isBlank(publicUrl)){
+            return null;
+        }
+        String marker = "/storage/v1/object/public" + bucketName + "/";
+        int index = publicUrl.indexOf(marker);
+        if(index == -1){
+            return null;
+        }
+        return publicUrl.substring(index + marker.length());
+    }
+    private void postDeleteSuccess(DeleteCallback callback){
+        mainHandler.post(callback::onSuccess);
+    }
+    private void postDeleteError(DeleteCallback callback, String message){
+        mainHandler.post(() -> callback.onError(message));
     }
 }

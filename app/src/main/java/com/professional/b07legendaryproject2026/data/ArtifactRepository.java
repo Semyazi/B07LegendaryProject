@@ -11,6 +11,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
+
 /** Reads artifact metadata from Firebase. Images themselves remain in Supabase. */
 public class ArtifactRepository {
     private static final String DATABASE_URL =
@@ -18,6 +20,11 @@ public class ArtifactRepository {
 
     public interface ArtifactsCallback {
         void onArtifactsLoaded(List<Artifact> artifacts);
+        void onError(String message);
+    }
+
+    public interface DeleteCallback{
+        void onSuccess();
         void onError(String message);
     }
 
@@ -82,6 +89,42 @@ public class ArtifactRepository {
             artifactsReference.removeEventListener(artifactsListener);
             artifactsListener = null;
         }
+    }
+
+    public void deleteArtifact(Artifact artifact, SupabaseImageUploader imageuploader, DeleteCallback callback){
+        if(artifact == null || artifact.getLotNumber() == null || artifact.getLotNumber().trim().isEmpty()){
+            callback.onError("Invalid artifact.");
+            return;
+        }
+
+        String lotNumber = artifact.getLotNumber();
+        String imageUrl = artifact.getImage();
+
+        if(imageUrl == null || imageUrl.trim().isEmpty()){
+            deleteArtifactRecord(lotNumber, callback);
+            return;
+        }
+
+        imageuploader.deleteImage(imageUrl, new SupabaseImageUploader.DeleteCallback(){
+            @Override
+             public void onSuccess(){
+                deleteArtifactRecord(lotNumber, callback);
+            }
+
+            @Override
+               public void onError(String message){
+                  callback.onError(message);
+            }
+        });
+    }
+
+    public void deleteArtifactRecord(String lotNumber, DeleteCallback callback){
+        artifactsReference.child(lotNumber)
+                .removeValue()
+                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onError(
+                        e.getMessage() == null ? "Failed to delete artifact." : e.getMessage())
+                );
     }
 
     private static String stringValue(DataSnapshot parent, String childName) {
