@@ -37,7 +37,7 @@ public class ArtifactRepository {
                 .getReference("artifacts");
     }
 
-    private Artifact parseArtifact(DataSnapshot artifactSnapshot, DataSnapshot details) {
+    private Artifact parseArtifact(DataSnapshot artifactSnapshot, DataSnapshot details, int likes) {
         Artifact artifact = new Artifact();
         artifact.setLotNumber(artifactSnapshot.getKey());
         artifact.setName(stringValue(details, "name"));
@@ -45,6 +45,7 @@ public class ArtifactRepository {
         artifact.setCategoryNum(CategoryNum.fromId(intValue(details, "category", -1)));
         artifact.setMaterialNum(MaterialNum.fromId(intValue(details, "material", -1)));
         artifact.setPeriodNum(PeriodNum.fromId(intValue(details, "dynastyPeriod", -1)));
+        artifact.setLikes(likes);
         artifact.setCulturalOrigin(stringValue(details, "culturalOrigin"));
         artifact.setDimensions(stringValue(details, "dimensions"));
         artifact.setConditionReport(stringValue(details, "conditionReport"));
@@ -72,7 +73,14 @@ public class ArtifactRepository {
                     if (!details.exists()) {
                         continue;
                     }
-                    artifacts.add(parseArtifact(artifactSnapshot, details));
+                    DataSnapshot likesSnapshot = artifactSnapshot.child("likes");
+                    int likesNumber;
+                    if (!likesSnapshot.exists()) {
+                        likesNumber =0;
+                    }else
+                        likesNumber =(int) likesSnapshot.getChildrenCount();
+                    
+                    artifacts.add(parseArtifact(artifactSnapshot, details, likesNumber));
                 }
                 callback.onArtifactsLoaded(artifacts);
             }
@@ -118,7 +126,13 @@ public class ArtifactRepository {
                                 DataSnapshot details = artifactSnapshot.child("details");
                                 if (!details.exists()) continue;
 
-                                savedArtifacts.add(parseArtifact(artifactSnapshot, details));
+                                DataSnapshot likesSnapshot = artifactSnapshot.child("likes");
+                                int likesNumber;
+                                if (!likesSnapshot.exists()) {
+                                    likesNumber =0;
+                                }else
+                                    likesNumber =(int) likesSnapshot.getChildrenCount();
+                                savedArtifacts.add(parseArtifact(artifactSnapshot, details, likesNumber));
                             }
                         }
                         callback.onArtifactsLoaded(savedArtifacts);
@@ -163,6 +177,32 @@ public class ArtifactRepository {
         });
     }
 
+    public void isArtifactLiked(String uid, String lotNumber, SaveStatusCallback callback) {
+    if (uid == null || lotNumber == null) {
+        callback.onStatusChecked(false);
+        return;
+    }
+
+    DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+            .getReference("artifacts")
+            .child(lotNumber)
+            .child("likes")
+            .child(uid);
+
+    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            boolean isLiked = snapshot.exists() && Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
+            callback.onStatusChecked(isLiked);
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            callback.onStatusChecked(false);
+        }
+    });
+}
+
     public void toggleSaveArtifact(String uid, String lotNumber, boolean currentSavedState, Runnable onSuccess, Runnable onFailure) {
         if (uid == null || lotNumber == null) {
             if (onFailure != null) onFailure.run();
@@ -173,6 +213,28 @@ public class ArtifactRepository {
                 .getReference("users").child(uid).child("savedArtifacts").child(lotNumber);
 
         if (currentSavedState) {
+            ref.removeValue().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && onSuccess != null) onSuccess.run();
+                else if (!task.isSuccessful() && onFailure != null) onFailure.run();
+            });
+        } else {
+            ref.setValue(true).addOnCompleteListener(task -> {
+                if (task.isSuccessful() && onSuccess != null) onSuccess.run();
+                else if (!task.isSuccessful() && onFailure != null) onFailure.run();
+            });
+        }
+    }
+
+    public void toggleLikeArtifact(String uid, String lotNumber, boolean currentLikedState, Runnable onSuccess, Runnable onFailure) {
+        if (uid == null || lotNumber == null) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+                .getReference("artifacts").child(lotNumber).child("likes").child(uid);
+
+        if (currentLikedState) {
             ref.removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && onSuccess != null) onSuccess.run();
                 else if (!task.isSuccessful() && onFailure != null) onFailure.run();
