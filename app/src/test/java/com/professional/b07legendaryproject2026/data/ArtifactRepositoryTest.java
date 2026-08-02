@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +25,8 @@ import org.mockito.MockedStatic;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 
 public class ArtifactRepositoryTest {
 
@@ -283,6 +286,31 @@ public class ArtifactRepositoryTest {
 
         verify(artifactsReference, never())
                 .removeEventListener(any(ValueEventListener.class));
+    }
+
+    @Test
+    public void deleteArtifact_nullArtifact_returnsError(){
+        ArtifactRepository.DeleteCallback callback = mock(ArtifactRepository.DeleteCallback.class);
+        SupabaseImageUploader imageUploader = mock(SupabaseImageUploader.class);
+
+        repository.deleteArtifact(null, imageUploader, callback);
+
+        verify(callback).onError("Invalid artifact.");
+        verifyNoInteractions(imageUploader);
+    }
+
+    @Test
+    public void deleteArtifact_missingLotNumber_returnsError(){
+        Artifact artifact = new Artifact();
+        artifact.setLotNumber("");
+
+        ArtifactRepository.DeleteCallback callback = mock(ArtifactRepository.DeleteCallback.class);
+        SupabaseImageUploader imageUploader = mock(SupabaseImageUploader.class);
+
+        repository.deleteArtifact(artifact, imageUploader, callback);
+
+        verify(callback).onError("Invalid artifact.");
+        verifyNoInteractions(imageUploader);
     }
 
     private ValueEventListener captureAttachedListener() {

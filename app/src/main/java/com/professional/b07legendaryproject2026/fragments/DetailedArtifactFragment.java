@@ -18,6 +18,8 @@ import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
+import com.professional.b07legendaryproject2026.data.ArtifactRepository;
+import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 import androidx.core.content.ContextCompat;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 
@@ -48,6 +50,8 @@ public class DetailedArtifactFragment extends Fragment {
             updateIsLiked(view, artifact);
             loadCommentSection(artifact);
         }
+
+        setupActionButtons(view, artifact);
 
         return view;
     }
@@ -118,6 +122,33 @@ public class DetailedArtifactFragment extends Fragment {
             if (space2 != null) space2.setVisibility(View.VISIBLE);
 
             btnEdit.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Edit"));
+            btnDelete.setOnClickListener(v -> {
+                if(artifact == null){
+                    ToastUtils.showToast(getContext(), "No artifact selected.");
+                    return;
+                }
+
+                ArtifactRepository repository = new ArtifactRepository();
+                SupabaseImageUploader imageUploader = new SupabaseImageUploader(requireContext());
+
+                repository.deleteArtifact(artifact, imageUploader, new ArtifactRepository.DeleteCallback(){
+                    @Override
+                    public void onSuccess(){
+                        ToastUtils.showToast(getContext(), "Artifact deleted.");
+
+                        if(getParentFragmentManager() != null){
+                            getParentFragmentManager().popBackStack();
+                        }
+                    }
+                    @Override
+                    public void onError(String message){
+                        ToastUtils.showToast(getContext(), "Delete failed: " + message);
+                    }
+                });
+            });
+        }
+        else {
+            btnSave.setText("Save to Collection"); // Full text for regular users
             btnDelete.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Delete"));
         } else {
             btnEdit.setVisibility(View.GONE);
