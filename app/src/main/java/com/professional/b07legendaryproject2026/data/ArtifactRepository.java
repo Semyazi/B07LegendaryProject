@@ -177,6 +177,32 @@ public class ArtifactRepository {
         });
     }
 
+    public void isArtifactLiked(String uid, String lotNumber, SaveStatusCallback callback) {
+    if (uid == null || lotNumber == null) {
+        callback.onStatusChecked(false);
+        return;
+    }
+
+    DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+            .getReference("artifacts")
+            .child(lotNumber)
+            .child("likes")
+            .child(uid);
+
+    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            boolean isLiked = snapshot.exists() && Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
+            callback.onStatusChecked(isLiked);
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            callback.onStatusChecked(false);
+        }
+    });
+}
+
     public void toggleSaveArtifact(String uid, String lotNumber, boolean currentSavedState, Runnable onSuccess, Runnable onFailure) {
         if (uid == null || lotNumber == null) {
             if (onFailure != null) onFailure.run();
@@ -187,6 +213,28 @@ public class ArtifactRepository {
                 .getReference("users").child(uid).child("savedArtifacts").child(lotNumber);
 
         if (currentSavedState) {
+            ref.removeValue().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && onSuccess != null) onSuccess.run();
+                else if (!task.isSuccessful() && onFailure != null) onFailure.run();
+            });
+        } else {
+            ref.setValue(true).addOnCompleteListener(task -> {
+                if (task.isSuccessful() && onSuccess != null) onSuccess.run();
+                else if (!task.isSuccessful() && onFailure != null) onFailure.run();
+            });
+        }
+    }
+
+    public void toggleLikeArtifact(String uid, String lotNumber, boolean currentLikedState, Runnable onSuccess, Runnable onFailure) {
+        if (uid == null || lotNumber == null) {
+            if (onFailure != null) onFailure.run();
+            return;
+        }
+
+        DatabaseReference ref = FirebaseDatabase.getInstance(DATABASE_URL)
+                .getReference("artifacts").child(lotNumber).child("likes").child(uid);
+
+        if (currentLikedState) {
             ref.removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful() && onSuccess != null) onSuccess.run();
                 else if (!task.isSuccessful() && onFailure != null) onFailure.run();

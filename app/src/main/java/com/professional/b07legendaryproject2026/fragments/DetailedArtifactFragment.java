@@ -25,6 +25,7 @@ public class DetailedArtifactFragment extends Fragment {
 
     private final ArtifactRepository repository = new ArtifactRepository();
     private boolean isSaved = false;
+    private boolean isLiked = false;
 
     private static final String ARTIFACT = "clicked-artifact";
 
@@ -43,7 +44,8 @@ public class DetailedArtifactFragment extends Fragment {
         if (artifact != null) {
             bindArtifactData(view, artifact);
             setupActionButtons(view, artifact);
-            checkIfSaved(view, artifact);
+            updateIsSaved(view, artifact);
+            updateIsLiked(view, artifact);
             loadCommentSection(artifact);
         }
 
@@ -100,10 +102,14 @@ public class DetailedArtifactFragment extends Fragment {
         Button btnSave = view.findViewById(R.id.button_save_to_collection);
         Button btnEdit = view.findViewById(R.id.button_edit);
         Button btnDelete = view.findViewById(R.id.button_delete);
+        Button btnLike = view.findViewById(R.id.button_like);
         View space1 = view.findViewById(R.id.admin_action_space);
         View space2 = view.findViewById(R.id.admin_action_space_2);
 
         btnSave.setOnClickListener(v -> handleSaveToggle(view, artifact));
+        btnLike.setOnClickListener(v -> handleLikeToggle(view, artifact));
+
+        btnLike.setText(""+ artifact.getLikes());
 
         if (UserSession.getInstance().isAdmin()) {
             btnEdit.setVisibility(View.VISIBLE);
@@ -123,7 +129,7 @@ public class DetailedArtifactFragment extends Fragment {
         updateSaveButtonUI(view);
     }
 
-    private void checkIfSaved(View view, Artifact artifact) {
+    private void updateIsSaved(View view, Artifact artifact) {
         String uid = UserSession.getInstance().getUid();
         if (uid == null || artifact == null || artifact.getLotNumber() == null) return;
 
@@ -131,6 +137,17 @@ public class DetailedArtifactFragment extends Fragment {
             if (!isAdded()) return;
             isSaved = saved;
             updateSaveButtonUI(view);
+        });
+    }
+
+    private void updateIsLiked(View view, Artifact artifact){
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) return;
+
+        repository.isArtifactLiked(uid, artifact.getLotNumber(), liked -> {
+            if (!isAdded()) return;
+            isLiked = liked;
+            updateLikeButtonUI(view, artifact);
         });
     }
 
@@ -147,6 +164,18 @@ public class DetailedArtifactFragment extends Fragment {
             btnSave.setText(isAdmin ? "Save" : "Save to Collection");
             btnSave.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_primary));
         }
+    }
+
+    private void updateLikeButtonUI(View view, Artifact artifact) {
+        Button btnLike = view.findViewById(R.id.button_like);
+        if (btnLike == null || getContext() == null) return;
+
+        if (isLiked) {
+            btnLike.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.imperial_red));
+        } else {
+            btnLike.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_primary));
+        }
+
     }
 
     private void handleSaveToggle(View view, Artifact artifact) {
@@ -175,6 +204,43 @@ public class DetailedArtifactFragment extends Fragment {
             ToastUtils.showToast(getContext(), "Failed to update collection.");
         });
     }
+
+    private void handleLikeToggle(View view, Artifact artifact){
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) {
+            ToastUtils.showToast(getContext(), "Unable to like.");
+            return;
+        }
+
+        Button btnLike = view.findViewById(R.id.button_like);
+        if (btnLike != null) btnLike.setEnabled(false);
+
+        boolean currentLikedState = isLiked;
+
+        repository.toggleLikeArtifact(uid, artifact.getLotNumber(), currentLikedState, () -> {
+            if (!isAdded()) return;
+            isLiked = !currentLikedState;
+            updateLikeButtonUI(view, artifact);
+            if (btnLike != null) btnLike.setEnabled(true);
+
+            String message;
+            if (isLiked) {
+                message = "Liked.";
+                artifact.setLikes(artifact.getLikes() + 1);
+            } else {
+                message = "Unliked.";
+                artifact.setLikes(Math.max(0, artifact.getLikes() - 1));
+            }
+            btnLike.setText(""+artifact.getLikes());
+
+            ToastUtils.showToast(getContext(), message);
+        }, () -> {
+            if (!isAdded()) return;
+            if (btnLike != null) btnLike.setEnabled(true);
+            ToastUtils.showToast(getContext(), "Failed to like.");
+        });
+    }
+
 
     private void loadCommentSection(Artifact artifact) {
         if (getChildFragmentManager().findFragmentById(R.id.fragment_container_comments) == null) {
