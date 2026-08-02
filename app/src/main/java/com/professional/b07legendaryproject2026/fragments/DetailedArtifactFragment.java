@@ -150,7 +150,7 @@ public class DetailedArtifactFragment extends Fragment {
         else {
             btnSave.setText("Save to Collection"); // Full text for regular users
             btnDelete.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Delete"));
-        } else {
+        
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             if (space1 != null) space1.setVisibility(View.GONE);
