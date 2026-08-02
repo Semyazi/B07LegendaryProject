@@ -11,6 +11,7 @@ public class Artifact implements  Serializable {
     private CategoryNum categoryNum;
     private MaterialNum materialNum;
     private PeriodNum periodNum;
+    private int likes;
 
     // Optional fields
     private String culturalOrigin;
@@ -30,6 +31,7 @@ public class Artifact implements  Serializable {
         this.categoryNum = CategoryNum.UNKNOWN;
         this.materialNum = MaterialNum.UNKNOWN;
         this.periodNum = PeriodNum.UNKNOWN;
+        this.likes = 0;
 
         this.culturalOrigin = null;
         this.dimensions = null;
@@ -49,6 +51,7 @@ public class Artifact implements  Serializable {
         this.categoryNum = CategoryNum.fromId(categoryNum);
         this.materialNum = MaterialNum.fromId(materialNum);
         this.periodNum = PeriodNum.fromId(periodNum);
+        this.likes=0;
 
         this.culturalOrigin = null;
         this.dimensions = null;
@@ -82,6 +85,9 @@ public class Artifact implements  Serializable {
         return periodNum != null ? periodNum.getDescription() : "";
     }
     public void setPeriodNum(PeriodNum periodNum) { this.periodNum = periodNum == null ? PeriodNum.UNKNOWN : periodNum; }
+
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) {this.likes = likes; }
 
     public String getCulturalOrigin() { return culturalOrigin; }
     public void setCulturalOrigin(String culturalOrigin) { this.culturalOrigin = culturalOrigin; }

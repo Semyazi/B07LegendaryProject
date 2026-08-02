@@ -23,6 +23,7 @@ public class ArtifactViewHolder extends RecyclerView.ViewHolder {
     private final TextView name;
     private final TextView lotNumber;
     private final TextView secondaryInfo;
+    private final TextView likes;
 
     public ArtifactViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -30,12 +31,14 @@ public class ArtifactViewHolder extends RecyclerView.ViewHolder {
         name = itemView.findViewById(R.id.text_artifact_name);
         lotNumber = itemView.findViewById(R.id.text_artifact_lot_number);
         secondaryInfo = itemView.findViewById(R.id.text_artifact_secondary_info);
+        likes = itemView.findViewById(R.id.text_artifact_likes);
     }
 
     public void bind(Artifact artifact, OnArtifactClickListener listener) {
         name.setText(artifact.getName());
         lotNumber.setText(artifact.getLotNumber());
         secondaryInfo.setText(artifact.getPeriodDescription());
+        likes.setText(""+artifact.getLikes());
         Glide.with(img.getContext())
                 .load(artifact.getImage())
                 .placeholder(R.drawable.artifact_image_placeholder)

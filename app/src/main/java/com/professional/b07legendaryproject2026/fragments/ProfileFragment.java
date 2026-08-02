@@ -18,11 +18,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.content.Intent;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
-
 import com.professional.b07legendaryproject2026.LoginActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.managers.UserSession;
@@ -44,15 +39,6 @@ public class ProfileFragment extends Fragment {
         EditText editPassword = view.findViewById(R.id.edit_password);
         EditText editReenterPassword = view.findViewById(R.id.edit_reenter_password);
         Button submitButton = view.findViewById(R.id.button_submit_profile);
-        Button cancelButton = view.findViewById(R.id.button_cancel_profile);
-
-        if (cancelButton != null) {
-            cancelButton.setOnClickListener(v -> {
-                if (getActivity() != null && isAdded()) {
-                    getParentFragmentManager().popBackStack();
-                }
-            });
-        }
 
         LinearLayout layoutRequirements = view.findViewById(R.id.layout_password_requirements);
         TextView reqLength = view.findViewById(R.id.req_length);
@@ -97,8 +83,6 @@ public class ProfileFragment extends Fragment {
             boolean hasUsernameChange = !editUserText.isEmpty() && !editUserText.equals(currentUsername);
             boolean hasPasswordChange = !editPWText.isEmpty();
 
-            confirmCurrentPassword( confirmCurrentPasswordText, () -> {
-
             if (!hasUsernameChange && !hasPasswordChange) {
                 ToastUtils.showToast(getContext(), "No changes were made.");
                 return;
@@ -129,39 +113,45 @@ public class ProfileFragment extends Fragment {
             }
 
             submitButton.setEnabled(false);
-            cancelButton.setEnabled(false);
 
-            Runnable onAllSuccess = () -> {
-                if (getContext() != null) {
-                    ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
-                }
-                if (getActivity() != null && isAdded()) {
-                    getParentFragmentManager().popBackStack();
-                }
-            };
+            UserSession.getInstance().reauthenticate(confirmCurrentPasswordText, () -> {
+                Runnable onAllSuccess = () -> {
+                    if (getContext() != null) {
+                        ToastUtils.showToast(getContext(), "Your changes were saved successfully.");
+                    }
 
-            Runnable onFailure = () -> {
-                if (getContext() != null) {
-                    ToastUtils.showToast(getContext(), "Failed to save changes. Please try again.");
-                }
-                submitButton.setEnabled(true);
-                cancelButton.setEnabled(true);
-            };
+                    editPassword.setText("");
+                    editReenterPassword.setText("");
+                    confirmCurrentPassword.setText("");
 
-            if (hasUsernameChange && hasPasswordChange) {
-                UserSession.getInstance().updateUsername(requireContext(), editUserText, () -> {
+                    if (hasUsernameChange) {
+                        editUsername.setHint(editUserText);
+                        editUsername.setText("");
+                    }
+
+                    submitButton.setEnabled(true);
+                };
+
+                Runnable onFailure = () -> {
+                    if (getContext() != null) {
+                        ToastUtils.showToast(getContext(), "Failed to save changes. Please try again.");
+                    }
+                    submitButton.setEnabled(true);
+                };
+
+                if (hasUsernameChange && hasPasswordChange) {
+                    UserSession.getInstance().updateUsername(requireContext(), editUserText, () -> {
+                        UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
+                    }, onFailure);
+                } else if (hasUsernameChange) {
+                    UserSession.getInstance().updateUsername(requireContext(), editUserText, onAllSuccess, onFailure);
+                } else {
                     UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
-                }, onFailure);
-            } else if (hasUsernameChange) {
-                UserSession.getInstance().updateUsername(requireContext(), editUserText, onAllSuccess, onFailure);
-            } else {
-                UserSession.getInstance().updatePassword(requireContext(), editPWText, onAllSuccess, null, onFailure);
-            }
+                }
             }, () -> {
                 ToastUtils.showToast(getContext(), "Current password is incorrect.");
+                submitButton.setEnabled(true);
             });
-
-            
         });
 
         setupPasswordToggles(view);
@@ -202,31 +192,6 @@ public class ProfileFragment extends Fragment {
         updateRequirementUI(reqLowercase, PasswordValidator.hasLowercase(password));
         updateRequirementUI(reqDigit, PasswordValidator.hasDigit(password));
         updateRequirementUI(reqSpecial, PasswordValidator.hasSpecialChar(password));
-    }
-
-    private void confirmCurrentPassword(String password, Runnable onSuccess, Runnable onFailure){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (user == null|| password == null || password.isEmpty()){
-            onFailure.run();
-            return;
-        }
-
-        String email = user.getEmail();
-        if (email == null || email.isEmpty()){
-            onFailure.run();
-            return;
-        }
-
-        AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        user.reauthenticate(credential)
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    onSuccess.run();
-                } else {
-                    onFailure.run();
-                }
-            });
     }
 
     private void updateRequirementUI(TextView textView, boolean isMet) {

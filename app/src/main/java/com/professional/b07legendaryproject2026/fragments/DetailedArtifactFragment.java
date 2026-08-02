@@ -20,8 +20,14 @@ import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
+import androidx.core.content.ContextCompat;
+import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 
 public class DetailedArtifactFragment extends Fragment {
+
+    private final ArtifactRepository repository = new ArtifactRepository();
+    private boolean isSaved = false;
+    private boolean isLiked = false;
 
     private static final String ARTIFACT = "clicked-artifact";
 
@@ -39,6 +45,10 @@ public class DetailedArtifactFragment extends Fragment {
 
         if (artifact != null) {
             bindArtifactData(view, artifact);
+            setupActionButtons(view, artifact);
+            updateIsSaved(view, artifact);
+            updateIsLiked(view, artifact);
+            loadCommentSection(artifact);
         }
 
         setupActionButtons(view, artifact);
@@ -67,14 +77,14 @@ public class DetailedArtifactFragment extends Fragment {
         lotNumber.setText(artifact.getLotNumber());
         secondaryInfo.setText(artifact.getPeriodDescription());
         description.setText(artifact.getDescription());
-        
+
         if (artifact.getCategoryNum() != null) {
             category.setText(artifact.getCategoryNum().getDisplayName());
         }
         if (artifact.getMaterialNum() != null) {
             material.setText(artifact.getMaterialNum().getDisplayName());
         }
-        
+
         origin.setText(artifact.getCulturalOrigin());
         dimensions.setText(artifact.getDimensions());
         condition.setText(artifact.getConditionReport());
@@ -96,13 +106,16 @@ public class DetailedArtifactFragment extends Fragment {
         Button btnSave = view.findViewById(R.id.button_save_to_collection);
         Button btnEdit = view.findViewById(R.id.button_edit);
         Button btnDelete = view.findViewById(R.id.button_delete);
+        Button btnLike = view.findViewById(R.id.button_like);
         View space1 = view.findViewById(R.id.admin_action_space);
         View space2 = view.findViewById(R.id.admin_action_space_2);
 
-        btnSave.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Save to collection"));
+        btnSave.setOnClickListener(v -> handleSaveToggle(view, artifact));
+        btnLike.setOnClickListener(v -> handleLikeToggle(view, artifact));
+
+        btnLike.setText(""+ artifact.getLikes());
 
         if (UserSession.getInstance().isAdmin()) {
-            btnSave.setText("Save"); // Shorten to fit all 3 buttons
             btnEdit.setVisibility(View.VISIBLE);
             btnDelete.setVisibility(View.VISIBLE);
             if (space1 != null) space1.setVisibility(View.VISIBLE);
@@ -136,10 +149,136 @@ public class DetailedArtifactFragment extends Fragment {
         }
         else {
             btnSave.setText("Save to Collection"); // Full text for regular users
+            btnDelete.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Delete"));
+        } else {
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             if (space1 != null) space1.setVisibility(View.GONE);
             if (space2 != null) space2.setVisibility(View.GONE);
+        }
+
+        updateSaveButtonUI(view);
+    }
+
+    private void updateIsSaved(View view, Artifact artifact) {
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) return;
+
+        repository.isArtifactSaved(uid, artifact.getLotNumber(), saved -> {
+            if (!isAdded()) return;
+            isSaved = saved;
+            updateSaveButtonUI(view);
+        });
+    }
+
+    private void updateIsLiked(View view, Artifact artifact){
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) return;
+
+        repository.isArtifactLiked(uid, artifact.getLotNumber(), liked -> {
+            if (!isAdded()) return;
+            isLiked = liked;
+            updateLikeButtonUI(view, artifact);
+        });
+    }
+
+    private void updateSaveButtonUI(View view) {
+        Button btnSave = view.findViewById(R.id.button_save_to_collection);
+        if (btnSave == null || getContext() == null) return;
+
+        boolean isAdmin = UserSession.getInstance().isAdmin();
+
+        if (isSaved) {
+            btnSave.setText(isAdmin ? "Remove" : "Remove from Collection");
+            btnSave.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.imperial_red));
+        } else {
+            btnSave.setText(isAdmin ? "Save" : "Save to Collection");
+            btnSave.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_primary));
+        }
+    }
+
+    private void updateLikeButtonUI(View view, Artifact artifact) {
+        Button btnLike = view.findViewById(R.id.button_like);
+        if (btnLike == null || getContext() == null) return;
+
+        if (isLiked) {
+            btnLike.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.imperial_red));
+        } else {
+            btnLike.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_primary));
+        }
+
+    }
+
+    private void handleSaveToggle(View view, Artifact artifact) {
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) {
+            ToastUtils.showToast(getContext(), "Unable to update collection.");
+            return;
+        }
+
+        Button btnSave = view.findViewById(R.id.button_save_to_collection);
+        if (btnSave != null) btnSave.setEnabled(false);
+
+        boolean currentSavedState = isSaved;
+
+        repository.toggleSaveArtifact(uid, artifact.getLotNumber(), currentSavedState, () -> {
+            if (!isAdded()) return;
+            isSaved = !currentSavedState;
+            updateSaveButtonUI(view);
+            if (btnSave != null) btnSave.setEnabled(true);
+
+            String message = isSaved ? "Added to your collection." : "Removed from your collection.";
+            ToastUtils.showToast(getContext(), message);
+        }, () -> {
+            if (!isAdded()) return;
+            if (btnSave != null) btnSave.setEnabled(true);
+            ToastUtils.showToast(getContext(), "Failed to update collection.");
+        });
+    }
+
+    private void handleLikeToggle(View view, Artifact artifact){
+        String uid = UserSession.getInstance().getUid();
+        if (uid == null || artifact == null || artifact.getLotNumber() == null) {
+            ToastUtils.showToast(getContext(), "Unable to like.");
+            return;
+        }
+
+        Button btnLike = view.findViewById(R.id.button_like);
+        if (btnLike != null) btnLike.setEnabled(false);
+
+        boolean currentLikedState = isLiked;
+
+        repository.toggleLikeArtifact(uid, artifact.getLotNumber(), currentLikedState, () -> {
+            if (!isAdded()) return;
+            isLiked = !currentLikedState;
+            updateLikeButtonUI(view, artifact);
+            if (btnLike != null) btnLike.setEnabled(true);
+
+            String message;
+            if (isLiked) {
+                message = "Liked.";
+                artifact.setLikes(artifact.getLikes() + 1);
+            } else {
+                message = "Unliked.";
+                artifact.setLikes(Math.max(0, artifact.getLikes() - 1));
+            }
+            btnLike.setText(""+artifact.getLikes());
+
+            ToastUtils.showToast(getContext(), message);
+        }, () -> {
+            if (!isAdded()) return;
+            if (btnLike != null) btnLike.setEnabled(true);
+            ToastUtils.showToast(getContext(), "Failed to like.");
+        });
+    }
+
+
+    private void loadCommentSection(Artifact artifact) {
+        if (getChildFragmentManager().findFragmentById(R.id.fragment_container_comments) == null) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_comments, CommentFragment.newInstance(artifact.getLotNumber()))
+                    .commit();
         }
     }
 }

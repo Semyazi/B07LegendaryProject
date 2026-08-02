@@ -19,6 +19,9 @@
         },
         "admin": {
           ".validate": "newData.isBoolean() && (newData.val() == false || (data.exists() && data.val() == true && newData.val() == true))"
+        },
+        "superadmin": {
+          ".validate": "newData.isBoolean() && (newData.val() == false || (data.exists() && data.val() == true && newData.val() == true))"
         }
       }
     },

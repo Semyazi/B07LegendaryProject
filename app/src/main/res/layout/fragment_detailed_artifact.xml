@@ -64,6 +64,22 @@
                 android:gravity="center_vertical">
 
                 <Button
+                    android:id="@+id/button_like"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="4dp"
+                    android:text="1"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    app:backgroundTint="@color/button_primary"
+                    app:icon="@drawable/like_button"
+                    app:iconSize="16dp" />
+
+                <Button
                     android:id="@+id/button_save_to_collection"
                     style="@style/Widget.MaterialComponents.Button.Icon"
                     android:layout_width="0dp"
@@ -198,6 +214,17 @@
 
             <TextView style="@style/TAAM_HeaderText" android:text="Notes" android:layout_marginTop="16dp" />
             <TextView android:id="@+id/text_artifact_notes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/text_secondary" android:textSize="14sp" android:fontStyle="italic" tools:text="Requires handle cleaning..." />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="@color/black" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragment_container_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
