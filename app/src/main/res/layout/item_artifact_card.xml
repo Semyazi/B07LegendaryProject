@@ -18,7 +18,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/image_artifact_thumbnail"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="140dp"
             android:scaleType="centerCrop"
             android:background="@drawable/skeleton_placeholder"
             app:shapeAppearanceOverlay="@style/RoundedCornersImage"
@@ -28,14 +28,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp">
 
             <TextView
                 android:id="@+id/text_artifact_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -45,39 +48,49 @@
                 android:id="@+id/text_artifact_lot_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 tools:text="TAAM-025" />
 
             <TextView
                 android:id="@+id/text_artifact_secondary_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="1dp"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
+                android:textSize="11sp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 tools:text="Qing Dynasty" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="12dp">
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp">
 
             <ImageView
                 android:id="@+id/imageView2"
-                android:layout_width="38dp"
-                android:layout_height="25dp"
-                app:srcCompat="@drawable/like_button" />
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/like_button"
+                app:tint="@color/imperial_red" />
 
             <TextView
                 android:id="@+id/text_artifact_likes"
-                android:layout_width="93dp"
-                android:layout_height="match_parent"
-                tools:text="Likes" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                tools:text="124" />
         </LinearLayout>
 
     </LinearLayout>
