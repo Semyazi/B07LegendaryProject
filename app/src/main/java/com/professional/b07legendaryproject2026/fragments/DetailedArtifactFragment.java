@@ -15,12 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.professional.b07legendaryproject2026.MainActivity;
 import com.professional.b07legendaryproject2026.R;
 import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.managers.UserSession;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
-import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 import androidx.core.content.ContextCompat;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 
@@ -51,8 +51,6 @@ public class DetailedArtifactFragment extends BackBtnBaseFragment {
             updateIsLiked(view, artifact);
             loadCommentSection(artifact);
         }
-
-        setupActionButtons(view, artifact);
 
         return view;
     }
@@ -131,36 +129,17 @@ public class DetailedArtifactFragment extends BackBtnBaseFragment {
             if (space1 != null) space1.setVisibility(View.VISIBLE);
             if (space2 != null) space2.setVisibility(View.VISIBLE);
 
-            btnEdit.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Edit"));
-            btnDelete.setOnClickListener(v -> {
-                if(artifact == null){
-                    ToastUtils.showToast(getContext(), "No artifact selected.");
-                    return;
+            btnEdit.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    AddArtifactFragment editFragment = AddArtifactFragment.newInstance(artifact);
+                    ((MainActivity) getActivity()).loadFragment(editFragment, true);
                 }
-
-                ArtifactRepository repository = new ArtifactRepository();
-                SupabaseImageUploader imageUploader = new SupabaseImageUploader(requireContext());
-
-                repository.deleteArtifact(artifact, imageUploader, new ArtifactRepository.DeleteCallback(){
-                    @Override
-                    public void onSuccess(){
-                        ToastUtils.showToast(getContext(), "Artifact deleted.");
-
-                        if(getParentFragmentManager() != null){
-                            getParentFragmentManager().popBackStack();
-                        }
-                    }
-                    @Override
-                    public void onError(String message){
-                        ToastUtils.showToast(getContext(), "Delete failed: " + message);
-                    }
-                });
             });
+            btnDelete.setOnClickListener(v -> showDeleteConfirmation(artifact));
         }
         else {
             btnSave.setText("Save to Collection"); // Full text for regular users
             btnDelete.setOnClickListener(v -> ToastUtils.showToast(getContext(), "Delete"));
-        
             btnEdit.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
             if (space1 != null) space1.setVisibility(View.GONE);
@@ -168,6 +147,24 @@ public class DetailedArtifactFragment extends BackBtnBaseFragment {
         }
 
         updateSaveButtonUI(view);
+    }
+
+    private void showDeleteConfirmation(Artifact artifact) {
+        if (artifact == null) return;
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder =
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext());
+
+        builder.setTitle("Confirm Deletion");
+        builder.setMessage("Are you sure you want to delete Artifact " + artifact.getLotNumber() + "?");
+        builder.setBackground(androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.dialog_background));
+
+        builder.setPositiveButton("YES", (dialog, which) -> {
+            ToastUtils.showToast(getContext(), "implementation in progress");
+        });
+
+        builder.setNegativeButton("NO", (dialog, which) -> dialog.dismiss());
+        builder.show();
     }
 
     private void updateIsSaved(View view, Artifact artifact) {

@@ -18,6 +18,7 @@
             android:padding="24dp">
 
             <TextView
+                android:id="@+id/text_add_artifact_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Add New Artifact"
