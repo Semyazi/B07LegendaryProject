@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/primary_background">
 
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -240,5 +241,13 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:theme="@style/Theme.B07DemoSummer2024"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
