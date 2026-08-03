@@ -60,8 +60,9 @@ public class DetailedArtifactFragment extends BackBtnBaseFragment {
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
-        toolbar.setNavigationOnClickListener(v -> navigateBack());
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> navigateBack());
+        }
     }
 
     private void bindArtifactData(View view, Artifact artifact) {
