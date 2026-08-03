@@ -10,6 +10,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.database.DataSnapshot;
@@ -23,7 +24,7 @@ import com.professional.b07legendaryproject2026.utils.ToastUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddArtifactFragment extends Fragment {
+public class AddArtifactFragment extends BackBtnBaseFragment {
 
     private EditText editLotNumber, editName, editDescription;
     private Spinner spinnerCategory, spinnerMaterial, spinnerDynasty;
@@ -55,6 +56,15 @@ public class AddArtifactFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationOnClickListener(v -> navigateBack());
     }
 
     private void validateAndSubmit() {

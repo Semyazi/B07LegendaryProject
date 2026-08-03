@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
@@ -23,7 +24,7 @@ import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 import androidx.core.content.ContextCompat;
 import com.professional.b07legendaryproject2026.data.ArtifactRepository;
 
-public class DetailedArtifactFragment extends Fragment {
+public class DetailedArtifactFragment extends BackBtnBaseFragment {
 
     private final ArtifactRepository repository = new ArtifactRepository();
     private boolean isSaved = false;
@@ -54,6 +55,15 @@ public class DetailedArtifactFragment extends Fragment {
         setupActionButtons(view, artifact);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationOnClickListener(v -> navigateBack());
     }
 
     private void bindArtifactData(View view, Artifact artifact) {
