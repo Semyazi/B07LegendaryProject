@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import android.net.Uri;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -311,6 +313,27 @@ public class ArtifactRepositoryTest {
 
         verify(callback).onError("Invalid artifact.");
         verifyNoInteractions(imageUploader);
+    }
+
+    @Test
+    public void replaceArtifactImage_nullArtifact_returnsError(){
+        SupabaseImageUploader imageUploader = mock(SupabaseImageUploader.class);
+        ArtifactRepository.ReplaceImageCallback callback = mock(ArtifactRepository.ReplaceImageCallback.class);
+        repository.replaceArtifactImage(null, mock(Uri.class), imageUploader, callback);
+        verify(callback).onError("Invalid artifact.");
+        verifyNoInteractions(imageUploader);
+    }
+
+    @Test
+    public void replaceArtifactImage_nullImageUri_returnsError(){
+        Artifact artifact = new Artifact();
+        artifact.setLotNumber("LOT123");
+        SupabaseImageUploader imageUploader = mock(SupabaseImageUploader.class);
+        ArtifactRepository.ReplaceImageCallback callback = mock(ArtifactRepository.ReplaceImageCallback.class);
+        repository.replaceArtifactImage(artifact, null, imageUploader, callback);
+        verify(callback).onError("No new image selected.");
+        verifyNoInteractions(imageUploader);
+
     }
 
     private ValueEventListener captureAttachedListener() {
