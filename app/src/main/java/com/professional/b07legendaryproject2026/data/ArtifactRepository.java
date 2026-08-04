@@ -1,6 +1,7 @@
 package com.professional.b07legendaryproject2026.data;
 
 import androidx.annotation.NonNull;
+import android.net.Uri;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,6 +31,11 @@ public class ArtifactRepository {
 
     public interface DeleteCallback{
         void onSuccess();
+        void onError(String message);
+    }
+
+    public interface ReplaceImageCallback{
+        void onSuccess(String newImageUrl);
         void onError(String message);
     }
 
@@ -77,12 +83,12 @@ public class ArtifactRepository {
                 List<Artifact> artifacts = new ArrayList<>();
                 for (DataSnapshot artifactSnapshot : snapshot.getChildren()) {
                     DataSnapshot details = artifactSnapshot.child("details");
-                    if (!details.exists()) {
+                    if (details == null || !details.exists()) {
                         continue;
                     }
                     DataSnapshot likesSnapshot = artifactSnapshot.child("likes");
                     int likesNumber;
-                    if (!likesSnapshot.exists()) {
+                    if (likesSnapshot == null || !likesSnapshot.exists()) {
                         likesNumber =0;
                     }else
                         likesNumber =(int) likesSnapshot.getChildrenCount();
@@ -300,6 +306,54 @@ public class ArtifactRepository {
                 .addOnFailureListener(e -> callback.onError(
                         e.getMessage() == null ? "Failed to delete artifact." : e.getMessage())
                 );
+    }
+
+    public void replaceArtifactImage(Artifact artifact, Uri newImageUri, SupabaseImageUploader imageUploader, ReplaceImageCallback callback){
+        if (artifact == null || artifact.getLotNumber() == null || artifact.getLotNumber().trim().isEmpty()){
+            callback.onError("Invalid artifact.");
+            return;
+        }
+        if (newImageUri == null){
+            callback.onError("No new image selected.");
+            return;
+        }
+        String lotNumber = artifact.getLotNumber();
+        String oldImageUrl = artifact.getImage();
+        imageUploader.uploadImage(newImageUri, lotNumber, new SupabaseImageUploader.UploadCallback(){
+            @Override
+            public void onSuccess(String newImageUrl){
+                artifactsReference.child(lotNumber)
+                        .child("details")
+                        .child("imageUrl")
+                        .setValue(newImageUrl)
+                        .addOnSuccessListener(unused -> {
+                            artifact.setImage(newImageUrl);
+
+                            if(oldImageUrl != null && !oldImageUrl.trim().isEmpty()){
+                                imageUploader.deleteImage(oldImageUrl, new SupabaseImageUploader.DeleteCallback(){
+                                    @Override
+                                    public void onSuccess(){
+                                        callback.onSuccess(newImageUrl);
+                                    }
+                                    @Override
+                                    public void onError(String message){
+                                        callback.onSuccess(newImageUrl);
+                                    }
+                                });
+                            }
+                            else{
+                                callback.onSuccess(newImageUrl);
+                            }
+                        })
+                        .addOnFailureListener(e -> callback.onError(
+                                e.getMessage() == null ? "Failed to update artifact image." : e.getMessage()
+                ));
+            }
+            @Override
+            public void onError(String message){
+                callback.onError(message);
+            }
+        });
     }
 
     private static String stringValue(DataSnapshot parent, String childName) {
