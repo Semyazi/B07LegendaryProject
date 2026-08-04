@@ -122,7 +122,7 @@ public class SupabaseImageUploader {
                             postSuccess(callback, publicUrl.toString());
                         }
                     } else {
-                        postError(callback, "Image upload failed with status " + response.code() + ".");
+                        postError(callback, buildHttpErrorMessage("Image upload", response));
                     }
                 } finally {
                     response.close();
@@ -133,7 +133,7 @@ public class SupabaseImageUploader {
 
     public void deleteImage(String publicUrl, DeleteCallback callback){
         if(isBlank(supabaseUrl) || isBlank(supabaseAnonKey) || isBlank(bucketName)){
-            postDeleteError(callback, "Image deleter not figured with URL, anon key, and bucket name.");
+            postDeleteError(callback, "Image deleter not configured with URL, anon key, and bucket name.");
             return;
         }
         if(isBlank(publicUrl)){
@@ -173,15 +173,15 @@ public class SupabaseImageUploader {
                     if (response.isSuccessful()) {
                         postDeleteSuccess(callback);
                     } else {
-                        postDeleteError(callback, "Image delete failed with status " + response.code() + ".");
+                        postDeleteError(callback, buildHttpErrorMessage("Image delete", response));
                     }
                 }
-                    finally{
-                        response.close();
-                    }
+                finally{
+                    response.close();
                 }
-            });
-        }
+            }
+        });
+    }
 
 
     private byte[] readBytes(Uri imageUri) throws IOException {
@@ -226,6 +226,20 @@ public class SupabaseImageUploader {
 
     private void postError(UploadCallback callback, String message) {
         mainHandler.post(() -> callback.onError(message));
+    }
+
+    private String buildHttpErrorMessage(String action, Response response) {
+        String responseBody = "";
+        try {
+            if (response.body() != null) {
+                responseBody = response.body().string().trim();
+            }
+        } catch (IOException ignored) {
+            // The HTTP status is still useful if the response body cannot be read.
+        }
+
+        String message = action + " failed with status " + response.code();
+        return isBlank(responseBody) ? message + "." : message + ": " + responseBody;
     }
 
     private boolean isBlank(String value) {
