@@ -158,7 +158,7 @@ public class SupabaseImageUploader {
         Request request = new Request.Builder()
                 .url(deleteUrl)
                 .addHeader("apikey", supabaseAnonKey)
-                .addHeader("Authorization", "Bearer" + supabaseAnonKey)
+                .addHeader("Authorization", "Bearer " + supabaseAnonKey)
                 .delete()
                 .build();
 
@@ -236,7 +236,7 @@ public class SupabaseImageUploader {
         if(isBlank(publicUrl)){
             return null;
         }
-        String marker = "/storage/v1/object/public" + bucketName + "/";
+        String marker = "/storage/v1/object/public/" + bucketName + "/";
         int index = publicUrl.indexOf(marker);
         if(index == -1){
             return null;
