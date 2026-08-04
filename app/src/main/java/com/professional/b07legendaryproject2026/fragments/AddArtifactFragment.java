@@ -91,12 +91,23 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
 
         if (artifactToEdit != null) {
             prefillFields();
+        } else {
+            prefillDefaultMetadata();
         }
 
         buttonBrowse.setOnClickListener(v -> imagePicker.launch("image/*"));
         buttonSubmit.setOnClickListener(v -> validateAndSubmit());
 
         return view;
+    }
+
+    private void prefillDefaultMetadata() {
+        editDimensions.setText(R.string.default_artifact_dimensions);
+        editCondition.setText(R.string.default_artifact_condition);
+        editLocation.setText(R.string.default_artifact_location);
+        editAcquisition.setText(R.string.default_artifact_acquisition);
+        editProvenance.setText(R.string.default_artifact_provenance);
+        editAccession.setText(R.string.default_artifact_accession_number);
     }
 
     @Override
