@@ -1,6 +1,7 @@
 package com.professional.b07legendaryproject2026.fragments;
 
 import android.os.Bundle;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,15 +12,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.professional.b07legendaryproject2026.R;
+import com.professional.b07legendaryproject2026.data.ArtifactRepository;
+import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 import com.professional.b07legendaryproject2026.data.Artifact;
 import com.professional.b07legendaryproject2026.utils.ToastUtils;
 
@@ -41,6 +39,14 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
             editAcquisition, editProvenance, editAccession, editNotes;
 
     private Artifact artifactToEdit;
+    private final ArtifactRepository repository = new ArtifactRepository();
+    private SupabaseImageUploader imageUploader;
+    private Uri selectedImageUri;
+    private final ActivityResultLauncher<String> imagePicker = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), uri -> {
+                selectedImageUri = uri;
+                if (uri != null && textImagePath != null) textImagePath.setText(uri.toString());
+            });
 
     public static AddArtifactFragment newInstance(Artifact artifact) {
         AddArtifactFragment fragment = new AddArtifactFragment();
@@ -56,6 +62,7 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_artifact, container, false);
+        imageUploader = new SupabaseImageUploader(requireContext());
 
         if (getArguments() != null) {
             artifactToEdit = (Artifact) getArguments().getSerializable(ARG_ARTIFACT);
@@ -84,21 +91,23 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
 
         if (artifactToEdit != null) {
             prefillFields();
+        } else {
+            prefillDefaultMetadata();
         }
 
-        buttonBrowse.setOnClickListener(v -> {
-            ToastUtils.showToast(getContext(), "gallery browsing not implemented yet");
-        });
-
-        buttonSubmit.setOnClickListener(v -> {
-            if (artifactToEdit != null) { //todo: this is the edit artifact case
-                ToastUtils.showToast(getContext(), "implementation in progress");
-            } else { //todo: this is the add new artifact case
-                validateAndSubmit();
-            }
-        });
+        buttonBrowse.setOnClickListener(v -> imagePicker.launch("image/*"));
+        buttonSubmit.setOnClickListener(v -> validateAndSubmit());
 
         return view;
+    }
+
+    private void prefillDefaultMetadata() {
+        editDimensions.setText(R.string.default_artifact_dimensions);
+        editCondition.setText(R.string.default_artifact_condition);
+        editLocation.setText(R.string.default_artifact_location);
+        editAcquisition.setText(R.string.default_artifact_acquisition);
+        editProvenance.setText(R.string.default_artifact_provenance);
+        editAccession.setText(R.string.default_artifact_accession_number);
     }
 
     @Override
@@ -154,25 +163,98 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
 
         if (!missingFields.isEmpty()) {
             ToastUtils.showToast(getContext(), missingFields.get(0) + " is required.");
-        } else {
-            // Check if lot number exists in Firebase
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("artifacts").child(lotNumber);
-            ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        ToastUtils.showToast(getContext(), "Lot " + lotNumber + " is already in use.");
-                    } else {
-                        ToastUtils.showToast(getContext(), "artifact added! no implementation yet tho :(");
-                        // Future: implement saveArtifact(lotNumber);
-                    }
-                }
+        } else persistArtifact(buildArtifact(lotNumber));
+    }
 
+    private Artifact buildArtifact(String lotNumber) {
+        Artifact artifact = new Artifact(lotNumber,
+                editName.getText().toString().trim(),
+                editDescription.getText().toString().trim(),
+                spinnerCategory.getSelectedItemPosition() - 1,
+                spinnerMaterial.getSelectedItemPosition() - 1,
+                spinnerDynasty.getSelectedItemPosition() - 1);
+        artifact.setCulturalOrigin(text(editOrigin));
+        artifact.setDimensions(text(editDimensions));
+        artifact.setConditionReport(text(editCondition));
+        artifact.setCurrentLocation(text(editLocation));
+        artifact.setAcquisitionMethod(text(editAcquisition));
+        artifact.setProvenance(text(editProvenance));
+        artifact.setAccessionNumber(text(editAccession));
+        artifact.setNotes(text(editNotes));
+        artifact.setImage(artifactToEdit == null ? "" : artifactToEdit.getImage());
+        return artifact;
+    }
+
+    private String text(EditText field) {
+        return field == null ? "" : field.getText().toString().trim();
+    }
+
+    private void persistArtifact(Artifact artifact) {
+        buttonSubmit.setEnabled(false);
+        if(artifactToEdit != null && selectedImageUri != null){
+            repository.replaceArtifactImage(artifact, selectedImageUri, imageUploader,
+                    new ArtifactRepository.ReplaceCallback(){
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    ToastUtils.showToast(getContext(), "Database error: " + error.getMessage());
+                public void onSuccess(String newImageUrl){
+                    if(!isAdded())
+                        return;
+                    buttonSubmit.setEnabled(true);
+                    ToastUtils.showToast(getContext(), "Artifact updated.");
+                    navigateBack();
                 }
-            });
+                @Override
+                public void onError(String message){
+                    if(!isAdded())
+                        return;
+                    buttonSubmit.setEnabled(true);
+                    ToastUtils.showToast(getContext(), message);
+                }
+                    });
+            return;
         }
+
+        if (selectedImageUri == null) {
+            saveMetadata(artifact, null);
+            return;
+        }
+        imageUploader.uploadImage(selectedImageUri, artifact.getLotNumber(),
+                new SupabaseImageUploader.UploadCallback() {
+                    @Override public void onSuccess(String publicUrl) {
+                        artifact.setImage(publicUrl);
+                        saveMetadata(artifact, publicUrl);
+                    }
+                    @Override public void onError(String message) {
+                        if(!isAdded())
+                            return;
+                        buttonSubmit.setEnabled(true);
+                        ToastUtils.showToast(getContext(), message);
+                    }
+                });
+    }
+
+    private void saveMetadata(Artifact artifact, String newlyUploadedUrl) {
+        ArtifactRepository.MutationCallback callback = new ArtifactRepository.MutationCallback() {
+            @Override public void onSuccess() {
+                if (!isAdded()) return;
+                ToastUtils.showToast(getContext(), artifactToEdit == null
+                        ? "Artifact added." : "Artifact updated.");
+                navigateBack();
+            }
+
+            @Override public void onError(String message) {
+                if (!isAdded()) return;
+                buttonSubmit.setEnabled(true);
+                if (newlyUploadedUrl != null) {
+                    imageUploader.deleteImage(newlyUploadedUrl, new SupabaseImageUploader.DeleteCallback() {
+                        @Override public void onSuccess() { }
+                        @Override public void onError(String ignored) { }
+                    });
+                }
+                ToastUtils.showToast(getContext(), message);
+            }
+        };
+
+        if (artifactToEdit == null) repository.addArtifact(artifact, callback);
+        else repository.updateArtifact(artifact, callback);
     }
 }
