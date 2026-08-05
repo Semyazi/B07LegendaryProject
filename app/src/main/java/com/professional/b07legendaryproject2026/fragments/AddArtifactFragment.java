@@ -202,6 +202,7 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
                         saveMetadata(artifact, publicUrl);
                     }
                     @Override public void onError(String message) {
+                        if (!isAdded()) return;   
                         buttonSubmit.setEnabled(true);
                         ToastUtils.showToast(getContext(), message);
                     }
