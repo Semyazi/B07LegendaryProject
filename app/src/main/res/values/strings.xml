@@ -21,6 +21,14 @@
 
     <string name="edit">edit</string>
 
+    <!-- Defaults for newly added artifact metadata -->
+    <string name="default_artifact_dimensions">Not provided.</string>
+    <string name="default_artifact_condition">No formal condition report provided.</string>
+    <string name="default_artifact_location">Current location not documented.</string>
+    <string name="default_artifact_acquisition">Acquisition method not documented.</string>
+    <string name="default_artifact_provenance">Detailed ownership history is not documented.</string>
+    <string name="default_artifact_accession_number">Not assigned.</string>
+
     <!-- Supabase values -->
     <string name="supabase_url">https://mnwigvrikfcelubzjxmo.supabase.co</string>
     <string name="supabase_anon_key">sb_publishable_oxk7NLhfmoitITvSMjtH7A_IXmBk8kN</string>

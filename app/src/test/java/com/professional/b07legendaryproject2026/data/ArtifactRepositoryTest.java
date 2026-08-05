@@ -10,11 +10,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import android.net.Uri;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +30,7 @@ import org.mockito.MockedStatic;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.professional.b07legendaryproject2026.utils.SupabaseImageUploader;
 
@@ -311,6 +317,193 @@ public class ArtifactRepositoryTest {
 
         verify(callback).onError("Invalid artifact.");
         verifyNoInteractions(imageUploader);
+    }
+
+    @Test
+    public void replaceArtifactImage_nullArtifact_returnsError(){
+        SupabaseImageUploader imageUploader = mock(SupabaseImageUploader.class);
+        ArtifactRepository.ReplaceImageCallback callback = mock(ArtifactRepository.ReplaceImageCallback.class);
+        repository.replaceArtifactImage(null, mock(Uri.class), imageUploader, callback);
+        verify(callback).onError("Invalid artifact.");
+        verifyNoInteractions(imageUploader);
+    }
+
+    @Test
+    public void replaceArtifactImage_nullImageUri_returnsError(){
+        Artifact artifact = new Artifact();
+        artifact.setLotNumber("LOT123");
+        SupabaseImageUploader imageUploader = mock(SupabaseImageUploader.class);
+        ArtifactRepository.ReplaceImageCallback callback = mock(ArtifactRepository.ReplaceImageCallback.class);
+        repository.replaceArtifactImage(artifact, null, imageUploader, callback);
+        verify(callback).onError("No new image selected.");
+        verifyNoInteractions(imageUploader);
+
+    }
+
+    @Test
+    public void addArtifact_newLot_writesDetailsAndReportsSuccess() {
+        Artifact artifact = validArtifact("LOT-ADD");
+        ArtifactRepository.MutationCallback callback =
+                mock(ArtifactRepository.MutationCallback.class);
+        DatabaseReference lotReference = mock(DatabaseReference.class);
+        DatabaseReference detailsReference = mock(DatabaseReference.class);
+        Task<Void> task = successfulTask();
+
+        when(artifactsReference.child("LOT-ADD")).thenReturn(lotReference);
+        when(lotReference.child("details")).thenReturn(detailsReference);
+        when(detailsReference.setValue(any())).thenReturn(task);
+
+        repository.addArtifact(artifact, callback);
+        ArgumentCaptor<ValueEventListener> listenerCaptor =
+                ArgumentCaptor.forClass(ValueEventListener.class);
+        verify(lotReference).addListenerForSingleValueEvent(listenerCaptor.capture());
+
+        DataSnapshot snapshot = mock(DataSnapshot.class);
+        when(snapshot.exists()).thenReturn(false);
+        listenerCaptor.getValue().onDataChange(snapshot);
+
+        ArgumentCaptor<Map<String, Object>> detailsCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(detailsReference).setValue(detailsCaptor.capture());
+        assertEquals("Test Artifact", detailsCaptor.getValue().get("name"));
+        assertEquals("", detailsCaptor.getValue().get("notes"));
+        assertEquals(firstValidCategory().getId(), detailsCaptor.getValue().get("category"));
+        verify(callback).onSuccess();
+    }
+
+    @Test
+    public void addArtifact_existingLot_doesNotOverwrite() {
+        Artifact artifact = validArtifact("LOT-DUPLICATE");
+        ArtifactRepository.MutationCallback callback =
+                mock(ArtifactRepository.MutationCallback.class);
+        DatabaseReference lotReference = mock(DatabaseReference.class);
+        when(artifactsReference.child("LOT-DUPLICATE")).thenReturn(lotReference);
+
+        repository.addArtifact(artifact, callback);
+        ArgumentCaptor<ValueEventListener> listenerCaptor =
+                ArgumentCaptor.forClass(ValueEventListener.class);
+        verify(lotReference).addListenerForSingleValueEvent(listenerCaptor.capture());
+        DataSnapshot snapshot = mock(DataSnapshot.class);
+        when(snapshot.exists()).thenReturn(true);
+        listenerCaptor.getValue().onDataChange(snapshot);
+
+        verify(callback).onError("Lot LOT-DUPLICATE is already in use.");
+        verify(lotReference, never()).child("details");
+    }
+
+    @Test
+    public void updateArtifact_writesDetailsWithoutReplacingArtifactNode() {
+        Artifact artifact = validArtifact("LOT-EDIT");
+        artifact.setName("Edited Name");
+        ArtifactRepository.MutationCallback callback =
+                mock(ArtifactRepository.MutationCallback.class);
+        DatabaseReference lotReference = mock(DatabaseReference.class);
+        DatabaseReference detailsReference = mock(DatabaseReference.class);
+        Task<Void> task = successfulTask();
+        when(artifactsReference.child("LOT-EDIT")).thenReturn(lotReference);
+        when(lotReference.child("details")).thenReturn(detailsReference);
+        when(detailsReference.setValue(any())).thenReturn(task);
+
+        repository.updateArtifact(artifact, callback);
+
+        ArgumentCaptor<Map<String, Object>> detailsCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(detailsReference).setValue(detailsCaptor.capture());
+        assertEquals("Edited Name", detailsCaptor.getValue().get("name"));
+        verify(lotReference, never()).setValue(any());
+        verify(callback).onSuccess();
+    }
+
+    @Test
+    public void updateArtifact_databaseFailure_reportsMessage() {
+        Artifact artifact = validArtifact("LOT-FAIL");
+        ArtifactRepository.MutationCallback callback =
+                mock(ArtifactRepository.MutationCallback.class);
+        DatabaseReference lotReference = mock(DatabaseReference.class);
+        DatabaseReference detailsReference = mock(DatabaseReference.class);
+        Task<Void> task = failedTask(new RuntimeException("Permission denied"));
+        when(artifactsReference.child("LOT-FAIL")).thenReturn(lotReference);
+        when(lotReference.child("details")).thenReturn(detailsReference);
+        when(detailsReference.setValue(any())).thenReturn(task);
+
+        repository.updateArtifact(artifact, callback);
+
+        verify(callback).onError("Permission denied");
+        verify(callback, never()).onSuccess();
+    }
+
+    @Test
+    public void addArtifact_missingRequiredField_isRejectedBeforeFirebaseWrite() {
+        Artifact artifact = validArtifact("LOT-INVALID");
+        artifact.setName("  ");
+        ArtifactRepository.MutationCallback callback =
+                mock(ArtifactRepository.MutationCallback.class);
+
+        repository.addArtifact(artifact, callback);
+
+        verify(callback).onError("Artifact name is required.");
+        verifyNoInteractions(artifactsReference);
+    }
+
+    @Test
+    public void deleteArtifact_withoutImage_removesDatabaseNodeAndReportsSuccess() {
+        Artifact artifact = validArtifact("LOT-DELETE");
+        artifact.setImage("");
+        ArtifactRepository.DeleteCallback callback = mock(ArtifactRepository.DeleteCallback.class);
+        SupabaseImageUploader uploader = mock(SupabaseImageUploader.class);
+        DatabaseReference lotReference = mock(DatabaseReference.class);
+        Task<Void> task = successfulTask();
+        when(artifactsReference.child("LOT-DELETE")).thenReturn(lotReference);
+        when(lotReference.removeValue()).thenReturn(task);
+
+        repository.deleteArtifact(artifact, uploader, callback);
+
+        verify(lotReference).removeValue();
+        verify(callback).onSuccess();
+        verifyNoInteractions(uploader);
+    }
+
+    @Test
+    public void deleteArtifact_databaseFailure_keepsSupabaseImage() {
+        Artifact artifact = validArtifact("LOT-DELETE-FAIL");
+        ArtifactRepository.DeleteCallback callback = mock(ArtifactRepository.DeleteCallback.class);
+        SupabaseImageUploader uploader = mock(SupabaseImageUploader.class);
+        DatabaseReference lotReference = mock(DatabaseReference.class);
+        Task<Void> task = failedTask(new RuntimeException("Permission denied"));
+        when(artifactsReference.child("LOT-DELETE-FAIL")).thenReturn(lotReference);
+        when(lotReference.removeValue()).thenReturn(task);
+
+        repository.deleteArtifact(artifact, uploader, callback);
+
+        verify(callback).onError("Permission denied");
+        verifyNoInteractions(uploader);
+    }
+
+    private static Artifact validArtifact(String lotNumber) {
+        Artifact artifact = new Artifact(lotNumber, "Test Artifact", "Test Description",
+                firstValidCategory().getId(), firstValidMaterial().getId(), firstValidPeriod().getId());
+        artifact.setImage("https://example.supabase.co/image.jpg");
+        return artifact;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Task<Void> successfulTask() {
+        Task<Void> task = mock(Task.class);
+        when(task.addOnSuccessListener(any())).thenAnswer(invocation -> {
+            ((OnSuccessListener<Void>) invocation.getArgument(0)).onSuccess(null);
+            return task;
+        });
+        when(task.addOnFailureListener(any())).thenReturn(task);
+        return task;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Task<Void> failedTask(Exception error) {
+        Task<Void> task = mock(Task.class);
+        when(task.addOnSuccessListener(any())).thenReturn(task);
+        when(task.addOnFailureListener(any())).thenAnswer(invocation -> {
+            ((OnFailureListener) invocation.getArgument(0)).onFailure(error);
+            return task;
+        });
+        return task;
     }
 
     private ValueEventListener captureAttachedListener() {

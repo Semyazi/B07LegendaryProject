@@ -191,28 +191,6 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
 
     private void persistArtifact(Artifact artifact) {
         buttonSubmit.setEnabled(false);
-        if(artifactToEdit != null && selectedImageUri != null){
-            repository.replaceArtifactImage(artifact, selectedImageUri, imageUploader,
-                    new ArtifactRepository.ReplaceCallback(){
-                @Override
-                public void onSuccess(String newImageUrl){
-                    if(!isAdded())
-                        return;
-                    buttonSubmit.setEnabled(true);
-                    ToastUtils.showToast(getContext(), "Artifact updated.");
-                    navigateBack();
-                }
-                @Override
-                public void onError(String message){
-                    if(!isAdded())
-                        return;
-                    buttonSubmit.setEnabled(true);
-                    ToastUtils.showToast(getContext(), message);
-                }
-                    });
-            return;
-        }
-
         if (selectedImageUri == null) {
             saveMetadata(artifact, null);
             return;
@@ -224,8 +202,7 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
                         saveMetadata(artifact, publicUrl);
                     }
                     @Override public void onError(String message) {
-                        if(!isAdded())
-                            return;
+                        if (!isAdded()) return;   
                         buttonSubmit.setEnabled(true);
                         ToastUtils.showToast(getContext(), message);
                     }
@@ -236,6 +213,13 @@ public class AddArtifactFragment extends BackBtnBaseFragment {
         ArtifactRepository.MutationCallback callback = new ArtifactRepository.MutationCallback() {
             @Override public void onSuccess() {
                 if (!isAdded()) return;
+                if (newlyUploadedUrl != null && artifactToEdit != null
+                        && artifactToEdit.getImage() != null && !artifactToEdit.getImage().trim().isEmpty()) {
+                    imageUploader.deleteImage(artifactToEdit.getImage(), new SupabaseImageUploader.DeleteCallback() {
+                        @Override public void onSuccess() { }
+                        @Override public void onError(String message) { }
+                    });
+                }
                 ToastUtils.showToast(getContext(), artifactToEdit == null
                         ? "Artifact added." : "Artifact updated.");
                 navigateBack();
