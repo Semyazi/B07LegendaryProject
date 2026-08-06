@@ -203,7 +203,13 @@ public class ArtifactGridManager {
             progressBar.setVisibility(View.GONE);
         }
 
-        int itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
+        int itemsPerPage;
+        try {
+            itemsPerPage = Integer.parseInt(itemsPerPageSpinner.getSelectedItem().toString());
+        } catch (NumberFormatException nfe ) {
+            itemsPerPage = Integer.MAX_VALUE;
+        }
+
         paginationManager.update(filteredArtifacts.size(), itemsPerPage);
 
         if (filteredArtifacts.isEmpty()) {

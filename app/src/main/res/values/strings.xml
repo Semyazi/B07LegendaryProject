@@ -17,6 +17,7 @@
     <string-array name="items_per_page_options">
         <item>12</item>
         <item>24</item>
+        <item>All</item>
     </string-array>
 
     <string name="edit">edit</string>
